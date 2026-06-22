@@ -2,17 +2,17 @@ const REQUIRED_SKILLS = [
   {
     id: 'palm-open-bloom',
     method: 'handlePalmOpen',
-    description: '掌心张开时触发花卉绽放与孢子粒子发射'
+    description: '掌心张开幅度连续控制荧光花朵开合'
   },
   {
     id: 'finger-tap-moss-ripple',
     method: 'handleFingerTap',
-    description: '食指轻点时触发苔藓实例与水波纹 Shader'
+    description: '食指轻点时在指尖生成短生命周期荧光植物生境'
   },
   {
     id: 'two-hand-mycelium-stretch',
     method: 'handleTwoHandStretch',
-    description: '双手拉伸时触发菌丝贝塞尔网络与粒子流'
+    description: '双手拉伸时触发彩色菌丝牵引与粒子流'
   }
 ];
 

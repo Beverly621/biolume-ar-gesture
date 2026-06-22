@@ -46,13 +46,13 @@ app.innerHTML = `
         <span class="subtitle-en">Botanical Blooming Gesture Experience</span>
       </h2>
       <div class="hero-divider" aria-hidden="true"><span></span></div>
+      <p class="landing-signature">@Beverly</p>
       <p class="poem">
         <span class="poem-cn">掌心开花，指尖生苔，菌丝随手势生长。</span>
         <span class="poem-en">Bloom in your palm.</span>
         <span class="poem-en">Grow moss with your touch.</span>
         <span class="poem-en">Stretch glowing mycelium through motion.</span>
       </p>
-      <p class="landing-signature">@Beverly</p>
     </section>
 
     <section class="ar-viewport-shell" aria-label="AR preview viewport">
@@ -72,7 +72,7 @@ app.innerHTML = `
         <p>Gesture Dock</p>
         <span id="status">Camera Mode Ready</span>
       </div>
-      <button class="gesture-card active" id="demoBloom" type="button" data-gesture="bloom">
+      <div class="gesture-card active" data-gesture="bloom">
         <span class="gesture-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 21c-1.9-3.1-2.8-5.7-2.8-7.9C9.2 9.8 10.4 7 12 3c1.6 4 2.8 6.8 2.8 10.1 0 2.2-.9 4.8-2.8 7.9Z"/><path d="M12 14.8c-3.8-.4-6.4-2.1-8-5 3.8-.7 6.5.2 8 2.7 1.5-2.5 4.2-3.4 8-2.7-1.6 2.9-4.2 4.6-8 5Z"/></svg>
         </span>
@@ -81,8 +81,8 @@ app.innerHTML = `
           <em>Palm Bloom</em>
           <span class="gesture-description">Open your palm to awaken a glowing bud.</span>
         </span>
-      </button>
-      <button class="gesture-card" id="demoTap" type="button" data-gesture="moss">
+      </div>
+      <div class="gesture-card" data-gesture="moss">
         <span class="gesture-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 20c4.2 0 7.6-2.1 7.6-4.7S16.2 10.6 12 10.6 4.4 12.7 4.4 15.3 7.8 20 12 20Z"/><path d="M12 16.6c2.3 0 4.2-.7 4.2-1.6s-1.9-1.6-4.2-1.6-4.2.7-4.2 1.6 1.9 1.6 4.2 1.6Z"/><path d="M12 4c1.1 2.2 1.1 4.1 0 5.8C10.9 8.1 10.9 6.2 12 4Z"/></svg>
         </span>
@@ -91,8 +91,8 @@ app.innerHTML = `
           <em>Moss Touch</em>
           <span class="gesture-description">Grow moss with your touch.</span>
         </span>
-      </button>
-      <button class="gesture-card" id="demoStretch" type="button" data-gesture="web">
+      </div>
+      <div class="gesture-card" data-gesture="web">
         <span class="gesture-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M4 12c4-4.7 12-4.7 16 0-4 4.7-12 4.7-16 0Z"/><path d="M5.5 12c3.4 1.9 9.6 1.9 13 0"/><path d="M5.5 12c3.4-1.9 9.6-1.9 13 0"/><path d="M8 9.2 16 14.8M16 9.2 8 14.8"/></svg>
         </span>
@@ -101,22 +101,18 @@ app.innerHTML = `
           <em>Mycelium Stretch</em>
           <span class="gesture-description">Stretch glowing mycelium through motion.</span>
         </span>
-      </button>
+      </div>
       <div class="dock-actions">
         <button id="enterGarden" class="primary-cta" type="button">
           <span>Enter AR Garden</span>
           <small>进入生态花园</small>
         </button>
-        <button id="desktopRitual" class="secondary-cta" type="button">
-          <span>Watch Desktop Preview</span>
-          <small>观看桌面预览</small>
-        </button>
       </div>
     </aside>
 
     <footer class="footer-hint">
-      <span>Enter AR Garden opens the realtime camera gesture experience. Desktop preview is available without camera access.</span>
-      <span>进入生态花园将打开实时摄像头手势体验，桌面预览无需摄像头权限。</span>
+      <span>Enter AR Garden opens the realtime camera gesture experience and requires camera permission.</span>
+      <span>进入生态花园将打开实时摄像头手势体验，需要允许摄像头权限。</span>
     </footer>
 
     <section class="camera-experience" id="cameraExperience" hidden aria-label="Camera gesture experience">
@@ -154,7 +150,6 @@ app.innerHTML = `
 const viewport = document.querySelector('#viewport');
 const status = document.querySelector('#status');
 const enterGarden = document.querySelector('#enterGarden');
-const desktopRitual = document.querySelector('#desktopRitual');
 const cameraExperience = document.querySelector('#cameraExperience');
 const cameraVideo = document.querySelector('#cameraVideo');
 const cameraVfxLayer = document.querySelector('#cameraVfxLayer');
@@ -224,11 +219,6 @@ async function bootstrap() {
   const arSupported = await detectARSupport();
   updateARState(arSupported);
 
-  const demoHand = {
-    palmPosition: new THREE.Vector3(0, 0.92, 0.36),
-    quaternion: new THREE.Quaternion()
-  };
-
   const setActiveGesture = (gesture) => {
     document.body.classList.add('ritual-active');
     document.querySelectorAll('.gesture-card, .camera-trigger-row button').forEach((card) => {
@@ -247,49 +237,24 @@ async function bootstrap() {
     window.setTimeout(() => root.remove(), 360);
   };
 
-  document.querySelector('#demoBloom').addEventListener('click', () => {
-    setActiveGesture('bloom');
-    skills.invoke('palm-open-bloom', demoHand, true);
-  });
-
-  document.querySelector('#demoTap').addEventListener('click', () => {
-    setActiveGesture('moss');
-    const p = new THREE.Vector3((Math.random() - 0.5) * 0.8, 0.02, 0.36 + (Math.random() - 0.5) * 0.45);
-    skills.invoke('finger-tap-moss-ripple', p);
-  });
-
-  document.querySelector('#demoStretch').addEventListener('click', () => {
-    setActiveGesture('web');
-    const leftPalm = new THREE.Vector3(-0.42, 0.92, 0.36);
-    const rightPalm = new THREE.Vector3(0.42, 0.95, 0.36);
-    skills.invoke('two-hand-mycelium-stretch', leftPalm, rightPalm, leftPalm.distanceTo(rightPalm));
-  });
-
   enterGarden.addEventListener('click', async () => {
     burst(enterGarden);
     await handleEnterARGarden();
   });
 
-  desktopRitual.addEventListener('click', () => {
-    burst(desktopRitual);
-    runDesktopRitual(skills, demoHand, setExperienceMode);
-  });
-
   cameraBloom.addEventListener('click', () => {
     setActiveGesture('bloom');
-    skills.invoke('palm-open-bloom', demoHand, true);
+    cameraHint.textContent = '请张开手掌，花朵会跟随掌心绽放。';
   });
 
   cameraMoss.addEventListener('click', () => {
     setActiveGesture('moss');
-    skills.invoke('finger-tap-moss-ripple', new THREE.Vector3(0.08, 0.04, 0.28));
+    cameraHint.textContent = '请用指尖轻触或捏合，植物会在指尖生成。';
   });
 
   cameraWeb.addEventListener('click', () => {
     setActiveGesture('web');
-    const leftPalm = new THREE.Vector3(-0.38, 0.86, 0.28);
-    const rightPalm = new THREE.Vector3(0.38, 0.88, 0.28);
-    skills.invoke('two-hand-mycelium-stretch', leftPalm, rightPalm, leftPalm.distanceTo(rightPalm));
+    cameraHint.textContent = '请双手拉开，菌丝会在手势之间生长。';
   });
 
   exitGarden.addEventListener('click', () => {
@@ -298,7 +263,7 @@ async function bootstrap() {
     setExperienceMode('landing');
     status.textContent = arSupported
       ? 'Camera Gesture Mode 已退出；WebXR AR 可作为增强模式使用'
-      : 'Camera Gesture Mode 已退出；可继续使用桌面演示模式';
+      : 'Camera Gesture Mode 已退出；请重新进入并授权摄像头';
   });
 
   window.addEventListener('pagehide', stopCameraExperience);
@@ -318,10 +283,9 @@ async function bootstrap() {
       stopCameraExperience();
       setRenderHost(viewport);
       const message = `摄像头无法启动：${error.message || error}`;
-      status.textContent = `${message}，已切换到 Desktop Preview Mode`;
-      showModeNotice(`${message}<br>已自动降级到桌面演示模式。`);
+      status.textContent = 'Camera Permission Required';
+      showModeNotice(`${message}<br>请允许摄像头权限后重新进入生态花园。`);
       setExperienceMode('camera-error');
-      window.setTimeout(() => runDesktopRitual(skills, demoHand, setExperienceMode), 360);
     }
   }
 
@@ -379,7 +343,6 @@ async function bootstrap() {
     document.body.dataset.experience = nextMode;
     cameraExperience.hidden = nextMode !== 'camera-gesture' && nextMode !== 'checking-camera';
     document.body.classList.toggle('camera-mode', nextMode === 'camera-gesture' || nextMode === 'checking-camera');
-    document.body.classList.toggle('desktop-preview-mode', nextMode === 'desktop-preview');
     document.body.classList.toggle('camera-error-mode', nextMode === 'camera-error');
   }
 
@@ -484,20 +447,6 @@ function updateARState(isReady) {
   }
 
   status.textContent = 'Camera Mode Ready';
-}
-
-function runDesktopRitual(skills, demoHand, setExperienceMode = () => {}) {
-  setExperienceMode('desktop-preview');
-  document.body.classList.add('ritual-active');
-  skills.invoke('palm-open-bloom', demoHand, true);
-  window.setTimeout(() => {
-    skills.invoke('finger-tap-moss-ripple', new THREE.Vector3(0.05, 0.02, 0.36));
-  }, 280);
-  window.setTimeout(() => {
-    const leftPalm = new THREE.Vector3(-0.42, 0.92, 0.36);
-    const rightPalm = new THREE.Vector3(0.42, 0.95, 0.36);
-    skills.invoke('two-hand-mycelium-stretch', leftPalm, rightPalm, leftPalm.distanceTo(rightPalm));
-  }, 560);
 }
 
 bootstrap().catch((error) => {

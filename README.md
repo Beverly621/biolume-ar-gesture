@@ -41,12 +41,11 @@ The project does not require a local AI runtime. The main entry is **Camera Gest
 | Fingertip pinch / touch | Moss Touch | A glowing moss habitat grows from the fingertip |
 | Hands pull apart | Mycelium Stretch | A luminous mycelium branch stretches through motion |
 
-The project provides three experience paths:
+The project provides two experience paths:
 
 | Mode | Description |
 | --- | --- |
 | Camera Gesture Mode | Main experience. Uses the live camera feed, Three.js overlay effects, and MediaPipe Hands when available |
-| Desktop Preview Mode | Uses preview buttons to simulate the three botanical gesture effects without camera access |
 | Optional WebXR AR Mode | Available only when the browser supports WebXR immersive AR; it is not required to enter the experience |
 
 ## 🛠️ Tech Stack
@@ -116,12 +115,6 @@ http://localhost:3001/
 
 ## 💻 Usage
 
-### Desktop Preview Mode
-
-Open the page in a desktop browser and use the preview controls in the `Gesture Dock` to experience the three botanical gesture effects. This mode does not require a real AR environment and is suitable for demos, screenshots, and basic interaction testing.
-
-### Camera Gesture Mode
-
 Open the page in Safari, Chrome, Edge, or another modern browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, the app enters Camera Gesture Mode with a compact status bar, a bottom gesture dock, and the live botanical effects layer.
 
 Before entering Camera Gesture Mode, make sure:
@@ -130,7 +123,7 @@ Before entering Camera Gesture Mode, make sure:
 2. Camera permission is enabled;
 3. Your hands are fully visible in the camera frame;
 4. The browser can load MediaPipe Hands resources from `cdn.jsdelivr.net`;
-5. If automatic hand tracking is unavailable, use the bottom gesture dock in Camera Gesture Mode or the Desktop Preview controls.
+5. Interactive materials appear only after gesture input is detected; the bottom gesture dock is a mode guide, not an auto-preview trigger.
 
 WebXR AR can be used as an enhanced mode when supported, but lack of WebXR support does not prevent the camera experience from opening.
 
@@ -156,7 +149,7 @@ Then open `http://localhost:5174/`.
 
 ### Q2: Why does the page enter Preview Mode automatically?
 
-This usually means camera permission was denied, the browser cannot access a camera device, or the page is not running in a secure HTTPS / localhost context. Preview Mode is provided so that the core visual effects can still be experienced. WebXR support is optional and is not required for Camera Gesture Mode.
+This usually means camera permission was denied, the browser cannot access a camera device, or the page is not running in a secure HTTPS / localhost context. WebXR support is optional and is not required for Camera Gesture Mode.
 
 ### Q3: What should I do if the camera does not open?
 
@@ -170,7 +163,7 @@ Check the following:
 
 ### Q4: What if gestures are not detected?
 
-Make sure your hands are fully visible in the camera frame and that the lighting is clear. Automatic tracking uses MediaPipe Hands loaded from `cdn.jsdelivr.net`; if that resource cannot load or tracking is unstable, use the bottom gesture dock in Camera Gesture Mode or Desktop Preview Mode.
+Make sure your hands are fully visible in the camera frame and that the lighting is clear. Automatic tracking uses MediaPipe Hands loaded from `cdn.jsdelivr.net`; if that resource cannot load or tracking is unstable, check the camera permission and reload the page.
 
 ### Q5: What if the visual effects load slowly?
 

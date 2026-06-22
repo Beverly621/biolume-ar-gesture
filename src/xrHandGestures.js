@@ -41,10 +41,8 @@ export class XRHandGestureController {
     this.status = status;
     this.hands = new Map();
     this.tmpVec3 = new THREE.Vector3();
-    this.lastPalmBloomAt = -Infinity;
     this.lastFingerTapAt = -Infinity;
     this.lastStretchAt = -Infinity;
-    this.palmWasOpen = false;
     this.tapWasPinched = false;
   }
 
@@ -133,15 +131,10 @@ export class XRHandGestureController {
 
   handlePalmOpen(hand, time) {
     const isOpen = hand.openingRatio > 0.105;
-    const canTrigger = time - this.lastPalmBloomAt > 2.2;
-
-    if (isOpen && !this.palmWasOpen && canTrigger) {
-      this.skills.invoke('palm-open-bloom', hand, true);
-      this.lastPalmBloomAt = time;
-      this.status.textContent = '掌心绽放已触发';
+    this.skills.invoke('palm-open-bloom', hand, isOpen);
+    if (isOpen) {
+      this.status.textContent = 'Palm Bloom / 掌心绽放';
     }
-
-    this.palmWasOpen = isOpen;
   }
 
   handleFingerTap(hand, time) {
@@ -151,7 +144,7 @@ export class XRHandGestureController {
     if (isPinched && !this.tapWasPinched && canTrigger) {
       this.skills.invoke('finger-tap-moss-ripple', hand.indexTip);
       this.lastFingerTapAt = time;
-      this.status.textContent = '指尖苔痕已触发';
+      this.status.textContent = 'Moss Touch / 指尖生境';
     }
 
     this.tapWasPinched = isPinched;
@@ -159,12 +152,12 @@ export class XRHandGestureController {
 
   handleTwoHandStretch(left, right, time) {
     const distance = left.palmPosition.distanceTo(right.palmPosition);
-    const canTrigger = time - this.lastStretchAt > 1.2;
+    const canTrigger = time - this.lastStretchAt > 0.65;
 
     if (distance > 0.15 && canTrigger) {
       this.skills.invoke('two-hand-mycelium-stretch', left.palmPosition, right.palmPosition, distance);
       this.lastStretchAt = time;
-      this.status.textContent = '菌丝拉伸已触发';
+      this.status.textContent = 'Mycelium Stretch / 菌丝牵引';
     }
   }
 }

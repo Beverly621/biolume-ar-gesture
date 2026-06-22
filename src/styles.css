@@ -396,10 +396,7 @@ button {
 }
 
 .landing-signature {
-  position: absolute;
-  left: min(28vw, 540px);
-  top: min(42vh, 430px);
-  margin: 0;
+  margin: 0 0 10px;
   color: rgba(234, 251, 244, 0.52);
   font-size: 14px;
   letter-spacing: 0.08em;
@@ -514,8 +511,7 @@ body.ritual-active .viewport {
 }
 
 .gesture-card,
-.primary-cta,
-.secondary-cta {
+.primary-cta {
   position: absolute;
   left: 6%;
   width: 88%;
@@ -526,7 +522,7 @@ body.ritual-active .viewport {
     rgba(5, 24, 20, 0.56);
   border: 1px solid rgba(126, 246, 231, 0.22);
   color: var(--text-primary);
-  cursor: pointer;
+  cursor: default;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   display: grid;
@@ -540,14 +536,12 @@ body.ritual-active .viewport {
 }
 
 .gesture-card:focus-visible,
-.primary-cta:focus-visible,
-.secondary-cta:focus-visible {
+.primary-cta:focus-visible {
   box-shadow: 0 0 0 2px rgba(126, 246, 231, 0.9), 0 0 32px rgba(126, 246, 231, 0.28);
 }
 
 .gesture-card:hover,
-.primary-cta:hover,
-.secondary-cta:hover {
+.primary-cta:hover {
   transform: translateY(-2px);
   border-color: rgba(126, 246, 231, 0.58);
   box-shadow: 0 0 28px rgba(126, 246, 231, 0.16), inset 0 0 36px rgba(126, 246, 231, 0.08);
@@ -645,12 +639,13 @@ body.ritual-active .viewport {
   left: 0;
   right: 0;
   bottom: 2.8%;
-  height: 23%;
+  height: 11.5%;
 }
 
 .primary-cta {
   top: 0;
-  height: 43%;
+  height: 100%;
+  cursor: pointer;
   display: grid;
   place-items: center;
   grid-template-columns: 1fr;
@@ -662,26 +657,12 @@ body.ritual-active .viewport {
     linear-gradient(135deg, rgba(126, 246, 231, 0.72), rgba(15, 86, 74, 0.72));
 }
 
-.secondary-cta {
-  bottom: 0;
-  height: 43%;
-  display: grid;
-  place-items: center;
-  grid-template-columns: 1fr;
-  text-align: center;
-  color: var(--text-primary);
-  border-radius: 999px;
-  background: rgba(4, 16, 14, 0.66);
-}
-
-.primary-cta span,
-.secondary-cta span {
+.primary-cta span {
   font-size: 18px;
   font-weight: 650;
 }
 
-.primary-cta small,
-.secondary-cta small {
+.primary-cta small {
   display: block;
   margin-top: -10px;
   color: var(--text-secondary);
@@ -775,7 +756,7 @@ body.ritual-active .viewport {
 .garden-frame-overlay::before {
   box-shadow:
     inset 0 0 90px rgba(2, 7, 6, 0.9),
-    inset 0 0 160px rgba(126, 246, 231, 0.12);
+    inset 0 0 160px rgba(126, 246, 231, 0.06);
 }
 
 .garden-frame-overlay::after {
@@ -788,103 +769,103 @@ body.ritual-active .viewport {
   position: absolute;
   pointer-events: none;
   user-select: none;
-  mix-blend-mode: screen;
-  opacity: 0.82;
+  mix-blend-mode: normal;
+  opacity: 0.42;
   filter:
-    saturate(1.42)
-    contrast(1.05)
-    drop-shadow(0 0 28px rgba(126, 246, 231, 0.36))
-    drop-shadow(0 0 58px rgba(167, 139, 250, 0.2));
+    brightness(0.58)
+    saturate(0.9)
+    contrast(0.94)
+    drop-shadow(0 0 12px rgba(126, 246, 231, 0.12));
 }
 
 .garden-border-plant-1 {
   left: -6%;
-  bottom: -22%;
-  width: min(32vw, 520px);
-  opacity: 0.92;
+  bottom: -14%;
+  width: min(18vw, 280px);
+  opacity: 0.36;
 }
 
 .garden-border-plant-2 {
-  right: 23%;
-  bottom: -25%;
-  width: min(30vw, 480px);
-  opacity: 0.86;
+  right: 18%;
+  bottom: -14%;
+  width: min(16vw, 250px);
+  opacity: 0.28;
 }
 
 .garden-border-plant-3 {
   right: -7%;
-  bottom: -23%;
-  width: min(34vw, 560px);
-  opacity: 0.82;
+  bottom: -16%;
+  width: min(18vw, 280px);
+  opacity: 0.32;
   transform: scaleX(-1);
 }
 
 .garden-border-plant-4 {
-  left: 2%;
-  top: -30%;
-  width: min(30vw, 480px);
-  opacity: 0.56;
+  left: 3%;
+  top: -18%;
+  width: min(16vw, 250px);
+  opacity: 0.24;
   transform: rotate(180deg);
 }
 
 .garden-border-plant-5 {
-  left: 34%;
-  top: -32%;
-  width: min(31vw, 500px);
-  opacity: 0.42;
+  left: 38%;
+  top: -20%;
+  width: min(15vw, 240px);
+  opacity: 0.2;
   transform: rotate(180deg);
 }
 
 .garden-border-plant-6 {
-  right: 2%;
-  top: -28%;
-  width: min(31vw, 500px);
-  opacity: 0.54;
+  right: 6%;
+  top: -17%;
+  width: min(15vw, 240px);
+  opacity: 0.22;
   transform: rotate(180deg) scaleX(-1);
 }
 
 .garden-border-plant-7 {
-  left: -9%;
-  top: 12%;
-  width: min(23vw, 370px);
-  opacity: 0.68;
+  left: -8%;
+  top: 18%;
+  width: min(14vw, 220px);
+  opacity: 0.24;
 }
 
 .garden-border-plant-8 {
-  right: -8%;
-  top: 16%;
-  width: min(24vw, 390px);
-  opacity: 0.68;
+  right: -7%;
+  top: 22%;
+  width: min(13vw, 210px);
+  opacity: 0.26;
   transform: scaleX(-1);
 }
 
 .garden-border-plant-9 {
-  left: -4%;
-  top: 44%;
-  width: min(18vw, 290px);
-  opacity: 0.58;
+  left: -7%;
+  top: 55%;
+  width: min(13vw, 210px);
+  opacity: 0.28;
 }
 
 .garden-border-plant-10 {
-  right: -4%;
-  top: 43%;
-  width: min(19vw, 300px);
-  opacity: 0.58;
+  right: -6%;
+  top: 55%;
+  width: min(13vw, 210px);
+  opacity: 0.28;
   transform: scaleX(-1);
 }
 
 .garden-border-plant-11 {
-  left: 18%;
-  bottom: -18%;
-  width: min(18vw, 290px);
-  opacity: 0.56;
+  left: 16%;
+  bottom: -15%;
+  width: min(12vw, 190px);
+  opacity: 0.28;
 }
 
 .garden-border-plant-12 {
-  right: 12%;
-  bottom: -19%;
-  width: min(18vw, 290px);
-  opacity: 0.56;
+  right: 14%;
+  bottom: -15%;
+  width: min(12vw, 190px);
+  opacity: 0.28;
   transform: scaleX(-1);
 }
 
@@ -1162,12 +1143,11 @@ body.ritual-active .viewport {
 
   .dock-actions {
     bottom: 0;
-    height: 24%;
+    height: 14%;
   }
 
-  .primary-cta,
-  .secondary-cta {
-    height: 45%;
+  .primary-cta {
+    height: 100%;
   }
 
   .camera-status-panel {

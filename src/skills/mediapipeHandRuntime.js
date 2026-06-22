@@ -88,10 +88,8 @@ export async function createCameraHandTracker({ video, skills, status, onGesture
   let frameHandle = 0;
   let lastVideoTime = -1;
   let isProcessing = false;
-  let lastPalmBloomAt = -Infinity;
   let lastFingerTapAt = -Infinity;
   let lastStretchAt = -Infinity;
-  let palmWasOpen = false;
   let tapWasPinched = false;
 
   handsModel.onResults((results) => {
@@ -101,7 +99,6 @@ export async function createCameraHandTracker({ video, skills, status, onGesture
 
     if (!landmarks.length) {
       status.textContent = 'Tracking Hands / 正在识别手势：请将手放入画面';
-      palmWasOpen = false;
       tapWasPinched = false;
       return;
     }
@@ -115,12 +112,10 @@ export async function createCameraHandTracker({ video, skills, status, onGesture
 
     const activeHand = hands[0];
     const isOpen = activeHand.openingRatio > 0.28;
-    if (isOpen && !palmWasOpen && now - lastPalmBloomAt > 2.2) {
-      skills.invoke('palm-open-bloom', activeHand, true);
+    skills.invoke('palm-open-bloom', activeHand, isOpen);
+    if (isOpen) {
       onGesture('bloom');
-      lastPalmBloomAt = now;
     }
-    palmWasOpen = isOpen;
 
     const isPinched = activeHand.pinchDistance < 0.055;
     if (isPinched && !tapWasPinched && now - lastFingerTapAt > 0.75) {
@@ -132,7 +127,7 @@ export async function createCameraHandTracker({ video, skills, status, onGesture
 
     if (hands.length >= 2) {
       const distance = hands[0].palmPosition.distanceTo(hands[1].palmPosition);
-      if (distance > 0.42 && now - lastStretchAt > 1.25) {
+      if (distance > 0.3 && now - lastStretchAt > 0.65) {
         skills.invoke('two-hand-mycelium-stretch', hands[0].palmPosition, hands[1].palmPosition, distance);
         onGesture('web');
         lastStretchAt = now;
