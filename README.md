@@ -57,9 +57,6 @@ Eco-Druid Synesthesia is an original WebXR / AR gesture interaction experiment t
 
 所有历史版本：[前往 Releases 页面](https://github.com/Beverly621/biolume-ar-gesture/releases)
 
-Release packages are generated automatically by GitHub Actions after pushing a version tag such as `v1.0.0`. The zip excludes `node_modules`, `dist`, Git cache, logs, environment files, and example files.
-
-推送 `v1.0.0` 这类版本标签后，GitHub Actions 会自动生成纯净源码压缩包并挂载到 Releases，无需本地手动打包或上传附件。
 
 ---
 
@@ -141,46 +138,6 @@ The network should not look like a digital grid. It should look like glowing myc
 | Instancing | `THREE.InstancedMesh` for moss tufts |
 | Assets | `public/assets/eco_druid_assets` |
 | Deployment | GitHub over SSH on port `443` |
-
----
-
-## 📁 Project Structure / 项目结构
-
-```text
-biolume-ar-gesture/
-├── .github/
-│   └── workflows/
-│       └── release-build.yml
-├── docs/
-│   ├── BIOLUME_AR_GESTURE_TECHNICAL_GUIDE.md
-│   └── landing-preview.png
-├── public/
-│   └── assets/
-│       ├── ui/
-│       │   ├── eco-druid-reference.png
-│       │   └── eco-seed.png
-│       └── eco_druid_assets/
-│           ├── 01_bioluminescent_plants/
-│           ├── 02_growing_vines/
-│           ├── 03_water_ripple_textures/
-│           ├── 04_moodboard/
-│           └── docs/
-├── scripts/
-│   ├── deploy-ssh.mjs
-│   ├── ensure-environment.mjs
-│   └── sync-assets.mjs
-├── src/
-│   ├── EcoDruidVFXManager.js
-│   ├── main.js
-│   ├── styles.css
-│   ├── xrHandGestures.js
-│   └── skills/
-│       └── skillRegistry.js
-├── index.html
-├── package.json
-├── package-lock.json
-└── vite.config.js
-```
 
 ---
 
