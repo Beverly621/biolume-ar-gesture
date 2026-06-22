@@ -27,11 +27,11 @@
 
 ## ✨ Overview
 
-**Eco-Druid Synesthesia** is an original WebXR / AR gesture interaction experiment. It translates hand movement into living botanical feedback: a glowing bud blooming in the palm, fingertip moss and ripple marks growing in space, and a breathing spore-mycelium web stretched between two hands.
+**Eco-Druid Synesthesia** is an original camera-first AR gesture interaction experiment. It translates hand movement into living botanical feedback: a glowing bud blooming in the palm, fingertip moss and ripple marks growing in space, and a breathing spore-mycelium web stretched between two hands.
 
 Instead of following the common cyber-neon HUD style, mechanical gesture interface, or short-video filter logic, this project explores a softer and more narrative AR interaction language. It combines browser-based camera input, gesture interaction, 3D graphics, and botanical growth metaphors into a lightweight digital plant ritual.
 
-The project does not require a local AI runtime. Gesture recognition, segmentation, and visual processing are handled through browser-side components. After starting the local development server, open the page in a browser to experience camera-based gesture interaction, desktop preview mode, and botanical AR effects.
+The project does not require a local AI runtime. The main entry is **Camera Gesture Mode**: clicking `Enter AR Garden` requests camera permission, binds the live `MediaStream` to a browser `video` element, overlays the Three.js botanical effects layer, and attempts to load MediaPipe Hands from the browser for realtime hand tracking. WebXR is kept as an optional enhancement instead of a blocking requirement.
 
 ## 🌱 Core Interactions
 
@@ -41,12 +41,13 @@ The project does not require a local AI runtime. Gesture recognition, segmentati
 | Fingertip pinch / touch | Moss Touch | Moss grows from the fingertip and spreads with ripple shaders |
 | Hands pull apart | Spore Web | A Bezier mycelium network forms between the hands with flowing spore particles |
 
-The project provides two experience paths:
+The project provides three experience paths:
 
 | Mode | Description |
 | --- | --- |
-| AR Mode | Uses a WebXR-compatible mobile browser and camera for real AR gesture interaction |
-| Preview Mode | Uses desktop preview buttons to simulate the three botanical gesture effects for demonstration and testing |
+| Camera Gesture Mode | Main experience. Uses `getUserMedia`, a live `video` element, Three.js overlay effects, and MediaPipe Hands when available |
+| Desktop Preview Mode | Uses preview buttons to simulate the three botanical gesture effects without camera access |
+| Optional WebXR AR Mode | Available only when the browser supports WebXR immersive AR; it is not required to enter the experience |
 
 ## 🛠️ Tech Stack
 
@@ -54,8 +55,9 @@ The project provides two experience paths:
 | --- | --- |
 | App Framework | Vite |
 | 3D Rendering | Three.js |
-| AR Capability | WebXR |
-| Hand Input | WebXR Hand Input / browser-side gesture recognition |
+| Camera Input | `navigator.mediaDevices.getUserMedia`, `video.srcObject`, `autoplay`, `muted`, `playsInline` |
+| Hand Input | MediaPipe Hands loaded in the browser, with WebXR Hand Input kept as optional enhancement |
+| AR Capability | Camera Gesture Mode first, optional WebXR |
 | Visual Effects | Particles, shaders, ripples, Bezier curves, botanical motion |
 | Runtime | Node.js 18+ |
 | Supported Platforms | Windows / macOS / Linux |
@@ -97,19 +99,19 @@ npm start
 Default local URL:
 
 ```text
-http://localhost:5173/
+http://localhost:5174/
 ```
 
-If port `5173` is already in use, choose another port:
+If port `5174` is already in use, choose another port:
 
 ```bash
-npm start -- --port 5174
+npm start -- --port 3001
 ```
 
 Then open:
 
 ```text
-http://localhost:5174/
+http://localhost:3001/
 ```
 
 ## 💻 Usage
@@ -118,17 +120,27 @@ http://localhost:5174/
 
 Open the page in a desktop browser and use the preview controls in the `Gesture Dock` to experience the three botanical gesture effects. This mode does not require a real AR environment and is suitable for demos, screenshots, and basic interaction testing.
 
-### Mobile AR Mode
+### Camera Gesture Mode
 
-Open the page in a WebXR-compatible mobile browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, you can enter the AR gesture experience.
+Open the page in Safari, Chrome, Edge, or another modern browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, the app enters Camera Gesture Mode, shows the realtime camera video, places the Three.js botanical effects layer on top, and attempts to start MediaPipe Hands tracking.
 
-Before entering AR, make sure:
+Before entering Camera Gesture Mode, make sure:
 
-1. Your browser supports WebXR;
+1. The page is served through `localhost` or HTTPS;
+2. Camera permission is enabled;
+3. Your hands are fully visible in the camera frame;
+4. The browser can load MediaPipe Hands resources from `cdn.jsdelivr.net`;
+5. If automatic hand tracking is unavailable, use the manual effect buttons inside Camera Gesture Mode or the Desktop Preview controls.
+
+WebXR AR can be used as an enhanced mode when supported, but lack of WebXR support does not prevent the camera experience from opening.
+
+Before entering optional WebXR AR, make sure:
+
+1. Your browser supports WebXR immersive AR;
 2. The page is served through `localhost` or HTTPS;
 3. Camera permission is enabled;
 4. Your hands are fully visible in the camera frame;
-5. Browser-side models and resources can load correctly.
+5. Browser-side resources can load correctly.
 
 ## ❓ FAQ
 
@@ -140,11 +152,11 @@ Not recommended. Camera permissions, WebXR, WASM resources, and browser-side mod
 npm start
 ```
 
-Then open `http://localhost:5173/`.
+Then open `http://localhost:5174/`.
 
 ### Q2: Why does the page enter Preview Mode automatically?
 
-This usually means the current device or browser does not support WebXR, or the page is not running in a secure HTTPS / localhost context. Preview Mode is provided so that the core visual effects can still be experienced.
+This usually means camera permission was denied, the browser cannot access a camera device, or the page is not running in a secure HTTPS / localhost context. Preview Mode is provided so that the core visual effects can still be experienced. WebXR support is optional and is not required for Camera Gesture Mode.
 
 ### Q3: What should I do if the camera does not open?
 
@@ -154,11 +166,11 @@ Check the following:
 2. Camera permission is allowed in the browser address bar;
 3. System privacy settings allow the browser to access the camera;
 4. The camera is not being used by another application;
-5. The browser supports the required WebXR / camera capabilities.
+5. The browser supports `navigator.mediaDevices.getUserMedia`.
 
 ### Q4: What if gestures are not detected?
 
-Make sure your hands are fully visible in the camera frame and that the lighting is clear. Browser and device support for WebXR Hand Input may vary. If real hand input is not available, use Desktop Preview Mode to experience the three effects.
+Make sure your hands are fully visible in the camera frame and that the lighting is clear. Automatic tracking uses MediaPipe Hands loaded from `cdn.jsdelivr.net`; if that resource cannot load or tracking is unstable, use the manual effect buttons in Camera Gesture Mode or Desktop Preview Mode to experience the three effects.
 
 ### Q5: What if the visual effects load slowly?
 

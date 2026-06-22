@@ -12,22 +12,26 @@ const JOINTS = Object.freeze({
 });
 
 export async function requestCameraPermission() {
+  const stream = await requestCameraStream();
+
+  // WebXR AR session 会接管真实相机流；这里仅做浏览器权限预检，避免保留后台摄像头占用。
+  stream.getTracks().forEach((track) => track.stop());
+  return true;
+}
+
+export async function requestCameraStream() {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error('当前浏览器不支持摄像头授权 API。');
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia({
+  return navigator.mediaDevices.getUserMedia({
     video: {
-      facingMode: { ideal: 'environment' },
+      facingMode: { ideal: 'user' },
       width: { ideal: 1280 },
       height: { ideal: 720 }
     },
     audio: false
   });
-
-  // WebXR AR session 会接管真实相机流；这里仅做浏览器权限预检，避免保留后台摄像头占用。
-  stream.getTracks().forEach((track) => track.stop());
-  return true;
 }
 
 export class XRHandGestureController {

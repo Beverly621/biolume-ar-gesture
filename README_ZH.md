@@ -27,11 +27,11 @@
 
 ## ✨ 项目概览
 
-**Eco-Druid Synesthesia / 生态德鲁伊** 是一个原创 WebXR / AR 手势交互实验项目。它将真实手部动作转译为具有生命感的植物拟态反馈：掌心绽放花苞、指尖种下苔藓与水纹、双手拉伸出会呼吸的孢子菌丝网络。
+**Eco-Druid Synesthesia / 生态德鲁伊** 是一个以实时摄像头为主入口的原创 AR 手势交互实验项目。它将真实手部动作转译为具有生命感的植物拟态反馈：掌心绽放花苞、指尖种下苔藓与水纹、双手拉伸出会呼吸的孢子菌丝网络。
 
 不同于常见的赛博霓虹 HUD、机械式手势识别界面或短视频滤镜，本项目尝试建立一种更柔和、更自然、更具叙事感的 AR 交互语言。它把浏览器、摄像头、手势输入、三维图形和植物生长意象结合在一起，让用户像进行一场轻量的数字植物仪式。
 
-项目不需要安装本地 AI 运行环境。手势识别、人物分割与相关视觉处理由浏览器端组件完成。启动本地服务后，在浏览器中打开页面，即可体验摄像头手势识别、桌面预览模式与植物拟态 AR 特效。
+项目不需要安装本地 AI 运行环境。当前主入口是 **Camera Gesture Mode / 实时摄像头手势模式**：点击 `Enter AR Garden / 进入生态花园` 后，页面会请求摄像头权限，将实时 `MediaStream` 绑定到浏览器 `video` 元素，在其上叠加 Three.js 植物特效层，并尝试在浏览器端加载 MediaPipe Hands 进行实时手部追踪。WebXR 仅作为可选增强能力，不再是进入体验的阻塞条件。
 
 ## 🌱 核心交互
 
@@ -41,12 +41,13 @@
 | 指尖轻触 | Moss Touch | 指尖在空间中种下苔藓，并扩散水纹波动 |
 | 双手拉开 | Spore Web | 双手之间生成贝塞尔菌丝网络，并流动孢子粒子 |
 
-项目同时提供两种体验路径：
+项目同时提供三种体验路径：
 
 | 模式 | 说明 |
 | --- | --- |
-| AR Mode | 使用兼容 WebXR 的移动浏览器和摄像头，进入真实 AR 手势体验 |
-| Preview Mode | 在桌面端通过预览按钮模拟三种植物手势效果，方便展示与调试 |
+| Camera Gesture Mode | 主体验。使用 `getUserMedia`、实时 `video`、Three.js 叠加特效，并在可用时加载 MediaPipe Hands |
+| Desktop Preview Mode | 无需摄像头，通过预览按钮模拟三种植物手势效果，方便展示与调试 |
+| Optional WebXR AR Mode | 仅在浏览器支持 WebXR immersive AR 时可用；不是进入体验的必要条件 |
 
 ## 🛠️ 技术栈
 
@@ -54,8 +55,9 @@
 | --- | --- |
 | 页面框架 | Vite |
 | 图形渲染 | Three.js |
-| AR 能力 | WebXR |
-| 手势输入 | WebXR Hand Input / 浏览器端手势识别 |
+| 摄像头输入 | `navigator.mediaDevices.getUserMedia`、`video.srcObject`、`autoplay`、`muted`、`playsInline` |
+| 手势输入 | 浏览器端 MediaPipe Hands，WebXR Hand Input 作为可选增强 |
+| AR 能力 | Camera Gesture Mode 优先，WebXR 可选增强 |
 | 视觉效果 | 粒子、Shader、水纹、贝塞尔曲线、植物拟态动效 |
 | 运行环境 | Node.js 18+ |
 | 支持平台 | Windows / macOS / Linux |
@@ -97,19 +99,19 @@ npm start
 默认访问地址：
 
 ```text
-http://localhost:5173/
+http://localhost:5174/
 ```
 
-如果 `5173` 端口被占用，可以指定其他端口：
+如果 `5174` 端口被占用，可以指定其他端口：
 
 ```bash
-npm start -- --port 5174
+npm start -- --port 3001
 ```
 
 然后访问：
 
 ```text
-http://localhost:5174/
+http://localhost:3001/
 ```
 
 ## 💻 使用方式
@@ -118,17 +120,27 @@ http://localhost:5174/
 
 在桌面浏览器中打开页面后，可以使用右侧 `Gesture Dock` 中的预览按钮体验三种植物手势效果。该模式不依赖真实 AR 环境，适合演示、截图和基础交互体验。
 
-### 移动端 AR 模式
+### 实时摄像头手势模式
 
-使用支持 WebXR 的移动浏览器打开页面，点击 `Enter AR Garden`，并允许浏览器访问摄像头。授权后即可进入 AR 手势体验。
+使用 Safari、Chrome、Edge 或其他现代浏览器打开页面，点击 `Enter AR Garden / 进入生态花园`，并允许浏览器访问摄像头。授权后页面会进入实时摄像头手势模式，显示摄像头画面，在其上叠加 Three.js 植物特效层，并尝试启动 MediaPipe Hands 自动手势识别。
 
-进入 AR 前请确认：
+进入实时摄像头手势模式前请确认：
 
-1. 浏览器支持 WebXR；
+1. 页面通过 `localhost` 或 HTTPS 访问；
+2. 摄像头权限已开启；
+3. 手部完整出现在摄像头画面中；
+4. 当前网络可以加载 `cdn.jsdelivr.net` 上的 MediaPipe Hands 资源；
+5. 如果自动手势识别不可用，可以使用 Camera Gesture Mode 内的手动特效按钮，或使用桌面预览按钮。
+
+WebXR AR 可在浏览器支持时作为增强模式使用，但不支持 WebXR 不会阻止摄像头体验启动。
+
+进入可选 WebXR AR 前请确认：
+
+1. 浏览器支持 WebXR immersive AR；
 2. 页面通过 `localhost` 或 HTTPS 访问；
 3. 摄像头权限已开启；
 4. 手部完整出现在摄像头画面中；
-5. 当前网络可以正常加载浏览器端模型与资源。
+5. 当前网络可以正常加载浏览器端资源。
 
 ## ❓ 常见问题
 
@@ -140,11 +152,12 @@ http://localhost:5174/
 npm start
 ```
 
-然后通过 `http://localhost:5173/` 访问页面。
+然后通过 `http://localhost:5174/` 访问页面。
 
 ### Q2：为什么进入页面后自动变成 Preview Mode？
 
 通常是因为当前设备或浏览器不支持 WebXR，或者页面没有运行在 HTTPS / localhost 安全上下文中。此时系统会自动提供桌面预览模式，保证仍然可以体验核心视觉效果。
+也可能是摄像头权限被拒绝、摄像头设备不可用或被其他应用占用。WebXR 支持是可选项，不是进入 Camera Gesture Mode 的前置条件。
 
 ### Q3：摄像头无法打开怎么办？
 
@@ -154,11 +167,11 @@ npm start
 2. 浏览器地址栏中的摄像头权限是否允许；
 3. 系统隐私设置是否允许浏览器访问摄像头；
 4. 摄像头是否被其他软件占用；
-5. 浏览器是否支持当前 WebXR / 摄像头能力。
+5. 浏览器是否支持 `navigator.mediaDevices.getUserMedia`。
 
 ### Q4：手势没有被识别怎么办？
 
-请确保手部完整进入画面，并保持较好的光线条件。部分浏览器或设备对 WebXR Hand Input 支持程度不同，如果无法使用真实手势输入，可以切换到桌面预览模式体验三种特效。
+请确保手部完整进入画面，并保持较好的光线条件。自动手势识别依赖从 `cdn.jsdelivr.net` 加载的 MediaPipe Hands；如果资源无法加载或追踪不稳定，可以使用 Camera Gesture Mode 内的手动特效按钮，或切换到桌面预览模式体验三种特效。
 
 ### Q5：页面打开了，但视觉效果加载较慢怎么办？
 

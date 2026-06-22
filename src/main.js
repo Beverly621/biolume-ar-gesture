@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 import { EcoDruidVFXManager } from './EcoDruidVFXManager.js';
 import { initializeEcoDruidSkillRuntime } from './skills/skillRegistry.js';
-import { requestCameraPermission, XRHandGestureController } from './xrHandGestures.js';
+import { createCameraHandTracker } from './skills/mediapipeHandRuntime.js';
+import { requestCameraStream, XRHandGestureController } from './xrHandGestures.js';
 import './styles.css';
 
 const app = document.querySelector('#app');
@@ -45,8 +46,8 @@ app.innerHTML = `
       <div class="ar-state-card" id="arStateCard">
         <p class="state-label" id="arStateLabel">Preview Mode</p>
         <p class="state-copy" id="arStateCopy">
-          WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.<br>
-          AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。
+          Enter AR Garden opens realtime camera mode. Desktop Preview is available without camera access.<br>
+          进入生态花园将优先打开实时摄像头模式，桌面预览无需摄像头权限。
         </p>
       </div>
     </section>
@@ -100,9 +101,31 @@ app.innerHTML = `
     </aside>
 
     <footer class="footer-hint">
-      <span>WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.</span>
-      <span>AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。</span>
+      <span>Enter AR Garden opens the realtime camera gesture experience. Desktop preview is available without camera access.</span>
+      <span>进入生态花园将打开实时摄像头手势体验，桌面预览无需摄像头权限。</span>
     </footer>
+
+    <section class="camera-experience" id="cameraExperience" hidden aria-label="Camera gesture experience">
+      <video id="cameraVideo" class="camera-video" autoplay muted playsinline></video>
+      <div id="cameraVfxLayer" class="camera-vfx-layer" aria-hidden="true"></div>
+      <div class="camera-shade" aria-hidden="true"></div>
+      <div class="camera-hud">
+        <div class="camera-status-panel">
+          <p class="camera-eyebrow">Camera Gesture Mode</p>
+          <h2>实时生态花园</h2>
+          <span id="cameraStatus">Camera Ready / 摄像头待开启</span>
+          <small id="cameraHint">摄像头启动后会尝试加载 MediaPipe Hands；也可使用下方按钮手动测试三个特效。</small>
+        </div>
+        <div class="camera-trigger-row" aria-label="Manual gesture effect triggers">
+          <button id="cameraBloom" type="button">掌心绽放<br><span>Palm Bloom</span></button>
+          <button id="cameraMoss" type="button">指尖苔痕<br><span>Moss Touch</span></button>
+          <button id="cameraWeb" type="button">菌丝拉伸<br><span>Spore Web</span></button>
+        </div>
+        <button id="exitGarden" class="exit-garden" type="button">Exit Garden / 退出生态花园</button>
+      </div>
+    </section>
+
+    <div id="modeNotice" class="mode-notice" role="status" aria-live="polite" hidden></div>
   </main>
 `;
 
@@ -113,6 +136,16 @@ const arStateCopy = document.querySelector('#arStateCopy');
 const arStateCard = document.querySelector('#arStateCard');
 const enterGarden = document.querySelector('#enterGarden');
 const desktopRitual = document.querySelector('#desktopRitual');
+const cameraExperience = document.querySelector('#cameraExperience');
+const cameraVideo = document.querySelector('#cameraVideo');
+const cameraVfxLayer = document.querySelector('#cameraVfxLayer');
+const cameraStatus = document.querySelector('#cameraStatus');
+const cameraHint = document.querySelector('#cameraHint');
+const exitGarden = document.querySelector('#exitGarden');
+const modeNotice = document.querySelector('#modeNotice');
+const cameraBloom = document.querySelector('#cameraBloom');
+const cameraMoss = document.querySelector('#cameraMoss');
+const cameraWeb = document.querySelector('#cameraWeb');
 
 const scene = new THREE.Scene();
 scene.background = null;
@@ -127,6 +160,10 @@ renderer.setSize(viewport.clientWidth, viewport.clientHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.xr.enabled = true;
 viewport.appendChild(renderer.domElement);
+let renderHost = viewport;
+let cameraStream = null;
+let cameraHandTracker = null;
+let experienceMode = 'landing';
 
 const hemi = new THREE.HemisphereLight(0x7ef6e7, 0x123029, 1.1);
 scene.add(hemi);
@@ -167,18 +204,6 @@ async function bootstrap() {
   const arSupported = await detectARSupport();
   updateARState(arSupported);
 
-  async function grantCameraAccess() {
-    try {
-      await requestCameraPermission();
-      status.textContent = '摄像头授权完成，可进入 AR 手势模式';
-      arStateCard.classList.add('permission-granted');
-      return true;
-    } catch (error) {
-      status.textContent = `摄像头授权失败：${error.message}`;
-      return false;
-    }
-  }
-
   const demoHand = {
     palmPosition: new THREE.Vector3(0, 0.92, 0.36),
     quaternion: new THREE.Quaternion()
@@ -189,6 +214,7 @@ async function bootstrap() {
     document.querySelectorAll('.gesture-card').forEach((card) => {
       card.classList.toggle('active', card.dataset.gesture === gesture);
     });
+    cameraStatus.textContent = getGestureStatus(gesture);
   };
 
   const burst = (source) => {
@@ -221,28 +247,197 @@ async function bootstrap() {
 
   enterGarden.addEventListener('click', async () => {
     burst(enterGarden);
-    const granted = await grantCameraAccess();
-    if (!granted) return;
-
-    if (arSupported) {
-      arButton.click();
-      return;
-    }
-
-    runDesktopRitual(skills, demoHand);
+    await handleEnterARGarden();
   });
 
   desktopRitual.addEventListener('click', () => {
     burst(desktopRitual);
-    runDesktopRitual(skills, demoHand);
+    runDesktopRitual(skills, demoHand, setExperienceMode);
   });
 
-  window.addEventListener('resize', () => {
-    const width = viewport.clientWidth;
-    const height = viewport.clientHeight;
+  cameraBloom.addEventListener('click', () => {
+    setActiveGesture('bloom');
+    skills.invoke('palm-open-bloom', demoHand, true);
+  });
+
+  cameraMoss.addEventListener('click', () => {
+    setActiveGesture('moss');
+    skills.invoke('finger-tap-moss-ripple', new THREE.Vector3(0.08, 0.04, 0.28));
+  });
+
+  cameraWeb.addEventListener('click', () => {
+    setActiveGesture('web');
+    const leftPalm = new THREE.Vector3(-0.38, 0.86, 0.28);
+    const rightPalm = new THREE.Vector3(0.38, 0.88, 0.28);
+    skills.invoke('two-hand-mycelium-stretch', leftPalm, rightPalm, leftPalm.distanceTo(rightPalm));
+  });
+
+  exitGarden.addEventListener('click', () => {
+    stopCameraExperience();
+    setRenderHost(viewport);
+    setExperienceMode('landing');
+    status.textContent = arSupported
+      ? 'Camera Gesture Mode 已退出；WebXR AR 可作为增强模式使用'
+      : 'Camera Gesture Mode 已退出；可继续使用桌面演示模式';
+  });
+
+  window.addEventListener('pagehide', stopCameraExperience);
+  window.addEventListener('beforeunload', stopCameraExperience);
+
+  async function handleEnterARGarden() {
+    setExperienceMode('checking-camera');
+    clearModeNotice();
+    status.textContent = '正在请求摄像头权限，准备进入 Camera Gesture Mode';
+    cameraStatus.textContent = 'Checking Camera / 正在请求摄像头权限';
+    cameraHint.textContent = 'Safari / Chrome / Edge 会优先进入实时摄像头模式，WebXR 只作为增强能力。';
+
+    try {
+      const stream = await requestCameraStream();
+      await startCameraGestureExperience(stream);
+    } catch (error) {
+      stopCameraExperience();
+      setRenderHost(viewport);
+      const message = `摄像头无法启动：${error.message || error}`;
+      status.textContent = `${message}，已切换到 Desktop Preview Mode`;
+      showModeNotice(`${message}<br>已自动降级到桌面演示模式。`);
+      setExperienceMode('camera-error');
+      window.setTimeout(() => runDesktopRitual(skills, demoHand, setExperienceMode), 360);
+    }
+  }
+
+  async function startCameraGestureExperience(stream) {
+    stopCameraExperience();
+    cameraStream = stream;
+    cameraVideo.srcObject = stream;
+    cameraVideo.muted = true;
+    cameraVideo.playsInline = true;
+    setRenderHost(cameraVfxLayer);
+    setExperienceMode('camera-gesture');
+    document.body.classList.add('ritual-active');
+
+    await waitForVideo(cameraVideo);
+    await cameraVideo.play();
+
+    resizeRendererToHost();
+    status.textContent = 'Camera Active / 摄像头已开启';
+    cameraStatus.textContent = 'Camera Active / 摄像头已开启';
+    cameraHint.textContent = '正在加载 MediaPipe Hands；若加载失败，可继续使用下方手动触发按钮。';
+    arStateCard.classList.add('permission-granted');
+
+    try {
+      cameraHandTracker = await createCameraHandTracker({
+        video: cameraVideo,
+        skills,
+        status: cameraStatus,
+        onGesture: setActiveGesture
+      });
+      cameraHandTracker.start();
+      status.textContent = 'Tracking Hands / 正在识别手势';
+      cameraHint.textContent = '自动手势识别已启用：张开手掌、捏合指尖、双手拉开即可触发生态特效。';
+    } catch (error) {
+      cameraStatus.textContent = 'Camera Active / 摄像头已开启';
+      cameraHint.textContent = `自动手势识别暂不可用：${error.message || error}。请使用下方三个按钮手动测试特效。`;
+    }
+  }
+
+  function stopCameraExperience() {
+    if (cameraHandTracker) {
+      cameraHandTracker.stop();
+      cameraHandTracker = null;
+    }
+
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      cameraStream = null;
+    }
+
+    cameraVideo.pause();
+    cameraVideo.srcObject = null;
+  }
+
+  function setExperienceMode(nextMode) {
+    experienceMode = nextMode;
+    document.body.dataset.experience = nextMode;
+    cameraExperience.hidden = nextMode !== 'camera-gesture' && nextMode !== 'checking-camera';
+    document.body.classList.toggle('camera-mode', nextMode === 'camera-gesture' || nextMode === 'checking-camera');
+    document.body.classList.toggle('desktop-preview-mode', nextMode === 'desktop-preview');
+    document.body.classList.toggle('camera-error-mode', nextMode === 'camera-error');
+  }
+
+  function setRenderHost(host) {
+    if (renderHost === host) return;
+    renderHost = host;
+    renderHost.appendChild(renderer.domElement);
+    resizeRendererToHost();
+  }
+
+  function resizeRendererToHost() {
+    const width = Math.max(1, renderHost.clientWidth || window.innerWidth);
+    const height = Math.max(1, renderHost.clientHeight || window.innerHeight);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
+  }
+
+  function showModeNotice(message) {
+    modeNotice.innerHTML = message;
+    modeNotice.hidden = false;
+    window.setTimeout(clearModeNotice, 5200);
+  }
+
+  function clearModeNotice() {
+    modeNotice.hidden = true;
+    modeNotice.textContent = '';
+  }
+
+  function waitForVideo(video) {
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA && video.videoWidth > 0) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        video.removeEventListener('loadedmetadata', handleLoaded);
+        video.removeEventListener('error', handleError);
+      };
+      const handleLoaded = () => {
+        cleanup();
+        resolve();
+      };
+      const handleError = () => {
+        cleanup();
+        reject(new Error('摄像头视频流加载失败。'));
+      };
+      video.addEventListener('loadedmetadata', handleLoaded, { once: true });
+      video.addEventListener('error', handleError, { once: true });
+    });
+  }
+
+  function getGestureStatus(gesture) {
+    if (gesture === 'bloom') return 'Palm Bloom / 掌心绽放';
+    if (gesture === 'moss') return 'Moss Touch / 指尖苔痕';
+    if (gesture === 'web') return 'Spore Web / 菌丝拉伸';
+    return 'Tracking Hands / 正在识别手势';
+  }
+
+  if (arButton) {
+    arButton.addEventListener('click', async () => {
+      if (experienceMode !== 'camera-gesture') return;
+      status.textContent = 'WebXR AR enhanced mode requested / 正在尝试 WebXR 增强模式';
+    });
+  }
+
+  window.ecoDruidOptionalWebXR = () => {
+    if (!arSupported) {
+      showModeNotice('当前浏览器不支持 WebXR AR，Camera Gesture Mode 仍可使用。');
+      return;
+    }
+
+    arButton.click();
+  };
+
+  window.addEventListener('resize', () => {
+    resizeRendererToHost();
   });
 
   renderer.setAnimationLoop((time, frame) => {
@@ -265,18 +460,19 @@ async function detectARSupport() {
 function updateARState(isReady) {
   document.body.classList.toggle('ar-ready', isReady);
   if (isReady) {
-  arStateLabel.textContent = 'AR Ready';
-    arStateCopy.innerHTML = '可进入增强现实体验<br>Ready to enter the augmented garden.';
-    status.textContent = 'AR Ready，可进入增强现实体验';
+    arStateLabel.textContent = 'Camera Ready';
+    arStateCopy.innerHTML = 'Enter AR Garden will open the realtime camera gesture experience. WebXR AR is available as enhanced mode.<br>进入生态花园将打开实时摄像头手势体验，WebXR AR 可作为增强模式。';
+    status.textContent = 'Camera Ready，可进入实时摄像头手势体验';
     return;
   }
 
   arStateLabel.textContent = 'Preview Mode';
-  arStateCopy.innerHTML = 'WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.<br>AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。';
-  status.textContent = 'Preview Mode，可使用桌面演示模式';
+  arStateCopy.innerHTML = 'Enter AR Garden opens realtime camera mode. Desktop Preview is available without camera access.<br>进入生态花园将优先打开实时摄像头模式，桌面预览无需摄像头权限。';
+  status.textContent = 'Camera Mode Ready，WebXR 不支持也可进入体验';
 }
 
-function runDesktopRitual(skills, demoHand) {
+function runDesktopRitual(skills, demoHand, setExperienceMode = () => {}) {
+  setExperienceMode('desktop-preview');
   document.body.classList.add('ritual-active');
   skills.invoke('palm-open-bloom', demoHand, true);
   window.setTimeout(() => {
