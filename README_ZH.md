@@ -170,16 +170,16 @@ npm start
 
 ## 🌿 原创性与二次开源说明
 
-本仓库中的项目命名、视觉系统、交互叙事、植物拟态手势机制、页面结构与前端实现，均由本项目作者重新设计与开发，属于 **Eco-Druid Synesthesia / 生态德鲁伊** 项目的原创二次创作内容。
+本仓库中的项目命名、视觉系统、交互叙事、植物拟态手势机制、页面结构与前端实现，均由本项目作者@Beverly 设计与开发，属于 **Eco-Druid Synesthesia / 生态德鲁伊** 项目的创作内容。
 
-项目早期参考过公开平台中的 AR 手势滤镜创意方向，但本仓库没有复制任何未开源仓库代码，也不附带第三方私有资源。当前项目的核心表达并非赛博 HUD 或传统滤镜叠加，而是围绕“植物拟态、自然生命感、流体波纹、动态菌丝网络”建立的独立交互方案。
+当前已经查询Instagram、X、YouTube、RED、TikTok等社交平台，，本仓库没有复制任何未开源仓库代码，也不附带第三方私有资源。本项目是围绕“植物拟态、自然生命感、流体波纹、动态菌丝网络”建立的独立交互方案。
 
 如果你基于本项目继续修改、演示、分发或二次开源，请保留以下信息：
 
 ```text
 Original project: Eco-Druid Synesthesia
 Repository: https://github.com/Beverly621/biolume-ar-gesture
-Original author: Beverly / @kimbeverly629
+Original author:@ Beverly621 
 ```
 
 如果你发布衍生版本，请明确说明你的版本是基于本项目的二次开发，并附上原仓库地址与原作者信息。
