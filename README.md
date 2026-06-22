@@ -3,7 +3,7 @@
 生态德鲁伊：植物拟态与绽放 AR 手势特效
 
 <p align="center">
-  <img src="./docs/landing-preview.jpg" alt="Eco-Druid Synesthesia Landing Preview" width="880" />
+  <img src="./docs/landing-preview.png" alt="Eco-Druid Synesthesia Landing Preview" width="880" />
 </p>
 
 <p align="center">
@@ -45,7 +45,7 @@ Eco-Druid Synesthesia is an original WebXR / AR gesture interaction experiment t
 
 | Mode | Preview |
 | --- | --- |
-| Landing Page | `./docs/landing-preview.jpg` |
+| Landing Page | `./docs/landing-preview.png` |
 | Desktop Preview | Run `npm run dev`, then open `http://localhost:5174/` |
 | AR Mode | Requires a WebXR AR compatible device and browser camera permission |
 
@@ -138,9 +138,12 @@ The network should not look like a digital grid. It should look like glowing myc
 biolume-ar-gesture/
 ├── docs/
 │   ├── BIOLUME_AR_GESTURE_TECHNICAL_GUIDE.md
-│   └── landing-preview.jpg
+│   └── landing-preview.png
 ├── public/
 │   └── assets/
+│       ├── ui/
+│       │   ├── eco-druid-reference.png
+│       │   └── eco-seed.png
 │       └── eco_druid_assets/
 │           ├── 01_bioluminescent_plants/
 │           ├── 02_growing_vines/
@@ -222,29 +225,6 @@ If AR mode is not supported, the project will automatically fall back to Preview
 
 ---
 
-## 🧪 Interaction Logic / 交互逻辑
-
-```mermaid
-flowchart TD
-    A["User opens page"] --> B{"WebXR supported?"}
-    B -->|Yes| C["AR Ready"]
-    B -->|No| D["Preview Mode"]
-    C --> E["Camera permission / AR Session"]
-    D --> F["Desktop Preview"]
-    E --> G["WebXR Hand Input"]
-    F --> H["Desktop Ritual Buttons"]
-    G --> I{"Gesture Detected"}
-    H --> I
-    I -->|Open Palm| J["Palm Bloom"]
-    I -->|Fingertip Pinch| K["Moss Touch"]
-    I -->|Hands Pull Apart| L["Spore Web"]
-    J --> M["Flower + Pollen Particles"]
-    K --> N["Moss + Ripple Shader"]
-    L --> O["Bezier Mycelium + Spore Flow"]
-```
-
----
-
 ## 🎨 UI Direction / 页面设计方向
 
 The landing page is designed as a ritual-like AR entrance rather than a technical control panel.
@@ -255,8 +235,8 @@ The landing page is designed as a ritual-like AR entrance rather than a technica
 | --- | --- |
 | AmbientBackground | Deep forest gradient, mist, floating spores, sleeping seed |
 | HeroCopy | Bilingual project title and concept description |
-| ARViewport | WebXR / Three.js scene preview |
-| GestureDock | Floating glass gesture selector |
+| ImmersiveViewport | Reference-image landing layer with a revealable WebXR / Three.js VFX layer |
+| GestureDock | Lightweight glass gesture selector with active glow rail |
 | StatusBadge | AR support status and preview mode hint |
 | FooterHint | Browser and camera permission guidance |
 
@@ -329,7 +309,7 @@ Instead, it focuses on:
 
 | Landing Page |
 | --- |
-| ![Landing Page](./docs/landing-preview.jpg) |
+| ![Landing Page](./docs/landing-preview.png) |
 
 ---
 

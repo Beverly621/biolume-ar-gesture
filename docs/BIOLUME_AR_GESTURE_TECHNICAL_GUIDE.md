@@ -123,6 +123,8 @@ npm run deploy:ssh
 - 噪声：Three.js `ImprovedNoise`，用于菌丝曲线扰动与粒子漂移。
 - 资产来源：`/Users/beverlykim/1-use/5-biolume/eco_druid_assets`。
 - 运行时资产目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/eco_druid_assets`。
+- UI 复刻背景资产：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/ui/eco-druid-reference.png`，来自 `/Users/beverlykim/1-use/5-biolume/2.png`，用于入口页首屏完全复刻视觉。
+- UI 种子资产：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/ui/eco-seed.png`，由 `/Users/beverlykim/1-use/5-biolume/2.png` 裁切生成，保留给后续非复刻式动态入口使用。
 - 打包输出目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/dist`。
 - Git 协议：SSH。
 - Git 仓库：`git@github.com:Beverly621/biolume-ar-gesture.git`。
@@ -132,11 +134,19 @@ npm run deploy:ssh
 
 ## 2.1 UI 模块结构
 
-- `AmbientBackground`：通过 CSS 深绿到墨蓝渐变、流动雾气、漂浮孢子和沉睡发光种子构成氛围背景。
-- `HeroCopy`：中英文并行标题、副标题和诗意说明。
-- `ARViewport`：承载 Three.js/WebXR canvas、柔和网格地面、预览种子、AR Ready / Preview Mode 状态卡。
-- `GestureDock`：玻璃拟态悬浮手势选择面板，包含 Palm Bloom、Moss Touch、Spore Web 三个生态符文卡片。
+- `AmbientBackground`：通过 CSS 深绿到墨蓝渐变、流动雾气、藤蔓暗影和 28 个漂浮孢子构成氛围背景。
+- `HeroCopy`：中英文分层标题、副标题和诗意说明，中文主标题占主视觉，英文退为辅助层级。
+- `ImmersiveViewport`：承载透明 Three.js/WebXR canvas、无边界柔和网格地面、苔藓光斑、图像种子与 AR Ready / Preview Mode 状态。
+- `GestureDock`：更轻的玻璃拟态悬浮手势选择面板，包含 Palm Bloom、Moss Touch、Spore Web 三个生态符文卡片；active 状态使用左侧柔光竖线而非厚重整块描边。
 - `FooterHint`：浏览器兼容、摄像头权限和桌面预览提示。
+
+## 2.2 本次视觉重构记录
+
+- 按用户最新要求撤回上一版偏移布局，改为完全复刻 `/Users/beverlykim/1-use/5-biolume/2.png`。
+- `2.png` 已复制为 `public/assets/ui/eco-druid-reference.png` 并作为首屏视觉复刻层。
+- 页面保留真实 DOM、AR/WebXR、摄像头授权、手势卡片和桌面预览事件；视觉上通过透明热区覆盖在复刻图对应位置。
+- 初始状态隐藏 Three.js canvas，以保持首屏与参考图一致；用户点击手势卡或桌面预览后添加 `ritual-active` class 并显示 VFX 层。
+- README 项目截图已替换为 `docs/landing-preview.png`。
 
 ## 3. 跨 Windows 适配改造完整开发过程记录
 
@@ -259,7 +269,9 @@ git status --short
 - `src/skills/skillRegistry.js`：前端技能模块注册与运行时校验。
 - `src/xrHandGestures.js`：摄像头授权预检与 WebXR Hand Input 手势映射。
 - `src/main.js`：沉浸式入口页结构、场景初始化、ARButton、CTA 与渲染循环。
-- `src/styles.css`：Eco-Druid Synesthesia 入口页视觉系统、玻璃拟态 Gesture Dock、雾气与孢子动效。
+- `src/styles.css`：Eco-Druid Synesthesia 入口页视觉复刻层、透明交互热区、WebXR/Three.js VFX reveal 状态。
+- `public/assets/ui/eco-druid-reference.png`：入口页首屏完整视觉复刻背景。
+- `public/assets/ui/eco-seed.png`：入口页中央沉睡发光种子图像资产。
 - `scripts/ensure-environment.mjs`：依赖、素材、外部 `.env`、Git remote 初始化。
 - `scripts/sync-assets.mjs`：素材同步。
 - `scripts/deploy-ssh.mjs`：先构建校验，再通过 SSH 443 推送。

@@ -11,49 +11,48 @@ app.innerHTML = `
     <section class="ambient-background" aria-hidden="true">
       <div class="mist mist-a"></div>
       <div class="mist mist-b"></div>
-      <div class="sleeping-seed"></div>
-      <span class="spore spore-1"></span>
-      <span class="spore spore-2"></span>
-      <span class="spore spore-3"></span>
-      <span class="spore spore-4"></span>
-      <span class="spore spore-5"></span>
-      <span class="spore spore-6"></span>
-      <span class="spore spore-7"></span>
-      <span class="spore spore-8"></span>
+      <div class="vine-shadow vine-shadow-a"></div>
+      <div class="vine-shadow vine-shadow-b"></div>
+      ${Array.from({ length: 28 }, (_, index) => `<span class="spore spore-${index + 1}"></span>`).join('')}
     </section>
 
     <section class="hero-copy" aria-labelledby="hero-title">
-      <p class="kicker">Botanical AR ritual</p>
+      <p class="kicker">✧ AR GESTURE EXPERIMENT · BOTANICAL RITUAL</p>
       <h1 id="hero-title">
-        <span>生态德鲁伊</span>
-        <span>Eco-Druid Synesthesia</span>
+        <span class="title-cn">生态德鲁伊</span>
+        <span class="title-en">Eco-Druid Synesthesia</span>
       </h1>
       <h2>
-        <span>植物拟态与绽放 AR 手势特效</span>
-        <span>Botanical mimicry and blooming gestures in augmented reality.</span>
+        <span class="subtitle-cn">植物拟态 AR 手势特效</span>
+        <span class="subtitle-en">Botanical gestures in augmented reality.</span>
       </h2>
+      <div class="hero-divider" aria-hidden="true"><span></span></div>
       <p class="poem">
-        <span>用手掌唤醒花朵，用指尖种下苔藓，用双手拉开一张会呼吸的孢子网。</span>
-        <span>Awaken a flower in your palm, seed moss with your fingertip, and stretch a living spore web between your hands.</span>
+        <span class="poem-cn">掌心开花，指尖生苔，双手牵引孢子之网。</span>
+        <span class="poem-en">Bloom with your palm. Seed with your touch. Weave with both hands.</span>
       </p>
     </section>
 
     <section class="ar-viewport-shell" aria-label="AR preview viewport">
+      <div class="glow-aura" aria-hidden="true"></div>
+      <div class="moss-glow" aria-hidden="true"></div>
+      <div class="soft-grid-floor" aria-hidden="true"></div>
       <div class="viewport" id="viewport"></div>
       <div class="viewport-vignette" aria-hidden="true"></div>
       <div class="seed-preview" aria-hidden="true">
-        <span></span>
+        <img src="/assets/ui/eco-seed.png" alt="" />
       </div>
       <div class="ar-state-card" id="arStateCard">
         <p class="state-label" id="arStateLabel">Preview Mode</p>
         <p class="state-copy" id="arStateCopy">
-          当前浏览器暂不支持 WebXR AR，可先使用桌面演示模式。<br>
-          Your browser does not support WebXR AR. You can still explore the desktop preview.
+          WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.<br>
+          AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。
         </p>
       </div>
     </section>
 
     <aside class="gesture-dock" aria-label="Gesture selection dock">
+      <span class="dock-star" aria-hidden="true">✦</span>
       <div class="dock-head">
         <p>Gesture Dock</p>
         <span id="status">初始化 WebXR 场景中</span>
@@ -63,9 +62,9 @@ app.innerHTML = `
           <svg viewBox="0 0 24 24"><path d="M12 21c-1.9-3.1-2.8-5.7-2.8-7.9C9.2 9.8 10.4 7 12 3c1.6 4 2.8 6.8 2.8 10.1 0 2.2-.9 4.8-2.8 7.9Z"/><path d="M12 14.8c-3.8-.4-6.4-2.1-8-5 3.8-.7 6.5.2 8 2.7 1.5-2.5 4.2-3.4 8-2.7-1.6 2.9-4.2 4.6-8 5Z"/></svg>
         </span>
         <span class="gesture-text">
-          <strong>掌心绽放 <em>Palm Bloom</em></strong>
-          <span>张开手掌，唤醒掌心花苞。</span>
-          <span>Open your palm to awaken a glowing bud.</span>
+          <strong>掌心绽放</strong>
+          <em>Palm Bloom</em>
+          <span class="gesture-description">Open your palm to awaken a glowing bud.</span>
         </span>
       </button>
       <button class="gesture-card" id="demoTap" type="button" data-gesture="moss">
@@ -73,9 +72,9 @@ app.innerHTML = `
           <svg viewBox="0 0 24 24"><path d="M12 20c4.2 0 7.6-2.1 7.6-4.7S16.2 10.6 12 10.6 4.4 12.7 4.4 15.3 7.8 20 12 20Z"/><path d="M12 16.6c2.3 0 4.2-.7 4.2-1.6s-1.9-1.6-4.2-1.6-4.2.7-4.2 1.6 1.9 1.6 4.2 1.6Z"/><path d="M12 4c1.1 2.2 1.1 4.1 0 5.8C10.9 8.1 10.9 6.2 12 4Z"/></svg>
         </span>
         <span class="gesture-text">
-          <strong>指尖苔痕 <em>Moss Touch</em></strong>
-          <span>轻触空间，种下一圈苔藓与水纹。</span>
-          <span>Touch the air to seed moss and ripples.</span>
+          <strong>指尖苔痕</strong>
+          <em>Moss Touch</em>
+          <span class="gesture-description">Touch the air to seed moss and ripples.</span>
         </span>
       </button>
       <button class="gesture-card" id="demoStretch" type="button" data-gesture="web">
@@ -83,9 +82,9 @@ app.innerHTML = `
           <svg viewBox="0 0 24 24"><path d="M4 12c4-4.7 12-4.7 16 0-4 4.7-12 4.7-16 0Z"/><path d="M5.5 12c3.4 1.9 9.6 1.9 13 0"/><path d="M5.5 12c3.4-1.9 9.6-1.9 13 0"/><path d="M8 9.2 16 14.8M16 9.2 8 14.8"/></svg>
         </span>
         <span class="gesture-text">
-          <strong>菌丝拉伸 <em>Spore Web</em></strong>
-          <span>合十再拉开，牵引一张会呼吸的孢子网。</span>
-          <span>Pull your hands apart to weave a living spore web.</span>
+          <strong>菌丝拉伸</strong>
+          <em>Spore Web</em>
+          <span class="gesture-description">Pull your hands apart to weave a living spore web.</span>
         </span>
       </button>
       <div class="dock-actions">
@@ -94,15 +93,15 @@ app.innerHTML = `
           <small>进入生态花园</small>
         </button>
         <button id="desktopRitual" class="secondary-cta" type="button">
-          <span>Launch Desktop Ritual</span>
-          <small>启动桌面演示</small>
+          <span>Watch Desktop Preview</span>
+          <small>观看桌面预览</small>
         </button>
       </div>
     </aside>
 
     <footer class="footer-hint">
-      <span>WebXR AR requires a compatible mobile browser and camera permission.</span>
-      <span>桌面端可使用预览模式；进入 AR 前请先允许摄像头权限。</span>
+      <span>WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.</span>
+      <span>AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。</span>
     </footer>
   </main>
 `;
@@ -116,7 +115,7 @@ const enterGarden = document.querySelector('#enterGarden');
 const desktopRitual = document.querySelector('#desktopRitual');
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x07110f);
+scene.background = null;
 
 const camera = new THREE.PerspectiveCamera(65, viewport.clientWidth / viewport.clientHeight, 0.01, 100);
 camera.position.set(0, 1.25, 2.3);
@@ -186,6 +185,7 @@ async function bootstrap() {
   };
 
   const setActiveGesture = (gesture) => {
+    document.body.classList.add('ritual-active');
     document.querySelectorAll('.gesture-card').forEach((card) => {
       card.classList.toggle('active', card.dataset.gesture === gesture);
     });
@@ -265,18 +265,19 @@ async function detectARSupport() {
 function updateARState(isReady) {
   document.body.classList.toggle('ar-ready', isReady);
   if (isReady) {
-    arStateLabel.textContent = 'AR Ready';
+  arStateLabel.textContent = 'AR Ready';
     arStateCopy.innerHTML = '可进入增强现实体验<br>Ready to enter the augmented garden.';
     status.textContent = 'AR Ready，可进入增强现实体验';
     return;
   }
 
   arStateLabel.textContent = 'Preview Mode';
-  arStateCopy.innerHTML = '当前浏览器暂不支持 WebXR AR，可先使用桌面演示模式。<br>Your browser does not support WebXR AR. You can still explore the desktop preview.';
+  arStateCopy.innerHTML = 'WebXR AR requires a compatible mobile browser and camera permission. Desktop preview is available.<br>AR 模式需兼容的移动端浏览器与摄像头权限，桌面端可使用预览模式。';
   status.textContent = 'Preview Mode，可使用桌面演示模式';
 }
 
 function runDesktopRitual(skills, demoHand) {
+  document.body.classList.add('ritual-active');
   skills.invoke('palm-open-bloom', demoHand, true);
   window.setTimeout(() => {
     skills.invoke('finger-tap-moss-ripple', new THREE.Vector3(0.05, 0.02, 0.36));
