@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const SOURCE_ROOT = '/Users/beverlykim/1-use/5-biolume/eco_druid_assets';
-const PROJECT_ROOT = '/Users/beverlykim/3-program-v2/biolume-ar-gesture';
+const SOURCE_ROOT = process.env.BIOLUME_ASSET_ROOT || '/Users/beverlykim/1-use/5-biolume/eco_druid_assets';
+const PROJECT_ROOT = process.env.BIOLUME_PROJECT_ROOT || process.cwd();
 const TARGET_ROOT = path.join(PROJECT_ROOT, 'public/assets/eco_druid_assets');
 
 const REQUIRED_DIRS = [
@@ -41,6 +41,11 @@ async function copyDirectory(sourceDir, targetDir) {
 
 async function main() {
   if (!(await pathExists(SOURCE_ROOT))) {
+    if (await pathExists(TARGET_ROOT)) {
+      console.log(`[biolume] 素材源目录不存在，保留仓库内运行时素材：${TARGET_ROOT}`);
+      return;
+    }
+
     throw new Error(`素材源目录不存在：${SOURCE_ROOT}`);
   }
 

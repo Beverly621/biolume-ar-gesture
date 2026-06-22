@@ -2,12 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const PROJECT_ROOT = '/Users/beverlykim/3-program-v2/biolume-ar-gesture';
-const GUIDE_ROOT = '/Users/beverlykim/1-use/5-biolume';
+const PROJECT_ROOT = process.env.BIOLUME_PROJECT_ROOT || process.cwd();
+const GUIDE_ROOT = process.env.BIOLUME_GUIDE_ROOT || '/Users/beverlykim/1-use/5-biolume';
 const ENV_FILE = path.join(GUIDE_ROOT, '.env');
 const ASSET_ROOT = path.join(GUIDE_ROOT, 'eco_druid_assets');
+const RUNTIME_ASSET_ROOT = path.join(PROJECT_ROOT, 'public/assets/eco_druid_assets');
 const REPOSITORY_SSH = 'git@github.com:Beverly621/biolume-ar-gesture.git';
 const SSH_PORT = '443';
+const IS_CI = process.env.GITHUB_ACTIONS === 'true';
 const REQUIRED_SKILL_FILES = [
   'src/EcoDruidVFXManager.js',
   'src/skills/skillRegistry.js',
@@ -62,6 +64,11 @@ async function ensureDependencies() {
 }
 
 async function ensureExternalEnvSlot() {
+  if (IS_CI) {
+    console.log('[biolume] GitHub Actions 环境跳过外部 .env 创建。');
+    return;
+  }
+
   await fs.mkdir(GUIDE_ROOT, { recursive: true });
   if (!(await exists(ENV_FILE))) {
     const template = [
@@ -78,10 +85,17 @@ async function ensureExternalEnvSlot() {
 }
 
 async function ensureAssets() {
-  if (!(await exists(ASSET_ROOT))) {
-    throw new Error(`素材目录不存在：${ASSET_ROOT}`);
+  if (await exists(ASSET_ROOT)) {
+    run('node', ['scripts/sync-assets.mjs']);
+    return;
   }
-  run('node', ['scripts/sync-assets.mjs']);
+
+  if (await exists(RUNTIME_ASSET_ROOT)) {
+    console.log(`[biolume] 未检测到外部素材目录，使用仓库内运行时素材：${RUNTIME_ASSET_ROOT}`);
+    return;
+  }
+
+  throw new Error(`素材目录不存在：${ASSET_ROOT}，且仓库内运行时素材缺失：${RUNTIME_ASSET_ROOT}`);
 }
 
 async function ensureSkillScripts() {

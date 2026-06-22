@@ -1,0 +1,70 @@
+name: Auto Build Release Zip
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies and prepare runtime assets
+        run: npm run setup
+
+      - name: Validate production build
+        run: npm run build
+
+      - name: Package clean source zip
+        run: |
+          ZIP_NAME="biolume-ar-gesture-${{ github.ref_name }}.zip"
+          zip -r "$ZIP_NAME" . \
+            -x "node_modules/*" \
+            -x ".git/*" \
+            -x ".github/workflows/*" \
+            -x "dist/*" \
+            -x "*.log" \
+            -x ".DS_Store" \
+            -x ".env" \
+            -x ".env.*" \
+            -x "env/*" \
+            -x "*example*"
+
+      - name: Publish Release and attach zip
+        uses: softprops/action-gh-release@v1
+        with:
+          files: biolume-ar-gesture-${{ github.ref_name }}.zip
+          body: |
+            # Eco-Druid Synesthesia ${{ github.ref_name }}
+
+            生态德鲁伊：植物拟态与绽放 AR 手势特效
+
+            纯净源码包，不含 node_modules、dist、Git 缓存、日志文件、环境变量文件或 example 文件。
+
+            ## 启动命令
+
+            ```bash
+            npm run setup
+            npm start
+            ```
+
+            自定义端口：
+
+            ```bash
+            npm start -- --port 3001
+            ```
+
+            > 提示：当前以 macOS 本地环境完成完整校验；GitHub Actions 会在 Ubuntu 环境中校验构建并生成 Release 附件。Windows / Linux 本地运行请参考技术文档的跨平台说明。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

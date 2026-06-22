@@ -51,6 +51,18 @@ Eco-Druid Synesthesia is an original WebXR / AR gesture interaction experiment t
 
 ---
 
+## 📦 Official Clean Package / 官方纯净安装包下载
+
+最新版压缩包：[biolume-ar-gesture-v1.0.0.zip](https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.0/biolume-ar-gesture-v1.0.0.zip)
+
+所有历史版本：[前往 Releases 页面](https://github.com/Beverly621/biolume-ar-gesture/releases)
+
+Release packages are generated automatically by GitHub Actions after pushing a version tag such as `v1.0.0`. The zip excludes `node_modules`, `dist`, Git cache, logs, environment files, and example files.
+
+推送 `v1.0.0` 这类版本标签后，GitHub Actions 会自动生成纯净源码压缩包并挂载到 Releases，无需本地手动打包或上传附件。
+
+---
+
 ## 🌌 Visual Direction / 视觉方向
 
 The visual system is inspired by bioluminescent plants, moonlit forests, translucent petals, organic spores, moss textures, and soft water ripples.
@@ -136,6 +148,9 @@ The network should not look like a digital grid. It should look like glowing myc
 
 ```text
 biolume-ar-gesture/
+├── .github/
+│   └── workflows/
+│       └── release-build.yml
 ├── docs/
 │   ├── BIOLUME_AR_GESTURE_TECHNICAL_GUIDE.md
 │   └── landing-preview.png
@@ -196,6 +211,12 @@ npm run setup
 npm run dev
 ```
 
+or:
+
+```bash
+npm start
+```
+
 Open:
 
 ```text
@@ -206,6 +227,29 @@ Stop the local server:
 
 ```text
 Ctrl + C
+```
+
+---
+
+## 🏷️ Release Build / 自动打包发布
+
+GitHub Actions workflow:
+
+```text
+.github/workflows/release-build.yml
+```
+
+Create and push a version tag to publish a clean source package:
+
+```bash
+git tag v1.0.0
+GIT_SSH_COMMAND="ssh -p 443" git push origin v1.0.0
+```
+
+The workflow can also be triggered manually from GitHub Actions:
+
+```text
+Actions → Auto Build Release Zip → Run workflow
 ```
 
 ---
