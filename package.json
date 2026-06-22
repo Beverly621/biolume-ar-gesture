@@ -1,0 +1,26 @@
+{
+  "name": "biolume-ar-gesture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Eco Druid AR gesture VFX powered by Three.js, WebXR and custom shaders.",
+  "scripts": {
+    "setup": "node scripts/ensure-environment.mjs",
+    "sync:assets": "node scripts/sync-assets.mjs",
+    "start": "npm run dev",
+    "dev": "npm run sync:assets && vite --host 0.0.0.0",
+    "build": "npm run setup && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "deploy:ssh": "node scripts/deploy-ssh.mjs"
+  },
+  "dependencies": {
+    "three": "^0.166.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.19"
+  },
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  }
+}
