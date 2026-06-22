@@ -1,7 +1,7 @@
 # 🌿 Eco-Druid Synesthesia
 
 <p align="center">
-  <strong>Botanical mimicry and blooming AR gesture effects</strong>
+  <strong>Botanical Blooming Gesture Experience</strong>
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <strong>Awaken a flower in your palm. Seed moss with your fingertip. Stretch a living spore web between your hands.</strong>
+  <strong>Bloom in your palm. Grow moss with your touch. Stretch glowing mycelium through motion.</strong>
 </p>
 
 <p align="center">
@@ -27,25 +27,25 @@
 
 ## ✨ Overview
 
-**Eco-Druid Synesthesia** is an original camera-first AR gesture interaction experiment. It translates hand movement into living botanical feedback: a glowing bud blooming in the palm, fingertip moss and ripple marks growing in space, and a breathing spore-mycelium web stretched between two hands.
+**Eco-Druid Synesthesia** is an original camera-first AR gesture interaction experiment. It translates hand movement into living botanical feedback: a translucent neon flower blooming in the palm, fingertip moss habitats growing in space, and glowing mycelium stretching through motion.
 
 Instead of following the common cyber-neon HUD style, mechanical gesture interface, or short-video filter logic, this project explores a softer and more narrative AR interaction language. It combines browser-based camera input, gesture interaction, 3D graphics, and botanical growth metaphors into a lightweight digital plant ritual.
 
-The project does not require a local AI runtime. The main entry is **Camera Gesture Mode**: clicking `Enter AR Garden` requests camera permission, binds the live `MediaStream` to a browser `video` element, overlays the Three.js botanical effects layer, and attempts to load MediaPipe Hands from the browser for realtime hand tracking. WebXR is kept as an optional enhancement instead of a blocking requirement.
+The project does not require a local AI runtime. The main entry is **Camera Gesture Mode**: clicking `Enter AR Garden` requests camera permission, overlays botanical Three.js effects on the live camera feed, and attempts to load MediaPipe Hands for realtime tracking. WebXR is kept as an optional enhancement instead of a blocking requirement.
 
 ## 🌱 Core Interactions
 
 | Gesture | Name | Visual Feedback |
 | --- | --- | --- |
-| Open palm | Palm Bloom | A glowing flower bud appears in the palm and releases soft pollen particles |
-| Fingertip pinch / touch | Moss Touch | Moss grows from the fingertip and spreads with ripple shaders |
-| Hands pull apart | Spore Web | A Bezier mycelium network forms between the hands with flowing spore particles |
+| Open palm | Palm Bloom | A translucent flower blooms above the palm with soft pollen particles |
+| Fingertip pinch / touch | Moss Touch | A glowing moss habitat grows from the fingertip |
+| Hands pull apart | Mycelium Stretch | A luminous mycelium branch stretches through motion |
 
 The project provides three experience paths:
 
 | Mode | Description |
 | --- | --- |
-| Camera Gesture Mode | Main experience. Uses `getUserMedia`, a live `video` element, Three.js overlay effects, and MediaPipe Hands when available |
+| Camera Gesture Mode | Main experience. Uses the live camera feed, Three.js overlay effects, and MediaPipe Hands when available |
 | Desktop Preview Mode | Uses preview buttons to simulate the three botanical gesture effects without camera access |
 | Optional WebXR AR Mode | Available only when the browser supports WebXR immersive AR; it is not required to enter the experience |
 
@@ -58,7 +58,7 @@ The project provides three experience paths:
 | Camera Input | `navigator.mediaDevices.getUserMedia`, `video.srcObject`, `autoplay`, `muted`, `playsInline` |
 | Hand Input | MediaPipe Hands loaded in the browser, with WebXR Hand Input kept as optional enhancement |
 | AR Capability | Camera Gesture Mode first, optional WebXR |
-| Visual Effects | Particles, shaders, ripples, Bezier curves, botanical motion |
+| Visual Effects | Cutout bioluminescent plant assets, particles, shaders, curves, botanical motion |
 | Runtime | Node.js 18+ |
 | Supported Platforms | Windows / macOS / Linux |
 
@@ -122,7 +122,7 @@ Open the page in a desktop browser and use the preview controls in the `Gesture 
 
 ### Camera Gesture Mode
 
-Open the page in Safari, Chrome, Edge, or another modern browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, the app enters Camera Gesture Mode, shows the realtime camera video, places the Three.js botanical effects layer on top, and attempts to start MediaPipe Hands tracking.
+Open the page in Safari, Chrome, Edge, or another modern browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, the app enters Camera Gesture Mode with a compact status bar, a bottom gesture dock, and the live botanical effects layer.
 
 Before entering Camera Gesture Mode, make sure:
 
@@ -130,7 +130,7 @@ Before entering Camera Gesture Mode, make sure:
 2. Camera permission is enabled;
 3. Your hands are fully visible in the camera frame;
 4. The browser can load MediaPipe Hands resources from `cdn.jsdelivr.net`;
-5. If automatic hand tracking is unavailable, use the manual effect buttons inside Camera Gesture Mode or the Desktop Preview controls.
+5. If automatic hand tracking is unavailable, use the bottom gesture dock in Camera Gesture Mode or the Desktop Preview controls.
 
 WebXR AR can be used as an enhanced mode when supported, but lack of WebXR support does not prevent the camera experience from opening.
 
@@ -170,7 +170,7 @@ Check the following:
 
 ### Q4: What if gestures are not detected?
 
-Make sure your hands are fully visible in the camera frame and that the lighting is clear. Automatic tracking uses MediaPipe Hands loaded from `cdn.jsdelivr.net`; if that resource cannot load or tracking is unstable, use the manual effect buttons in Camera Gesture Mode or Desktop Preview Mode to experience the three effects.
+Make sure your hands are fully visible in the camera frame and that the lighting is clear. Automatic tracking uses MediaPipe Hands loaded from `cdn.jsdelivr.net`; if that resource cannot load or tracking is unstable, use the bottom gesture dock in Camera Gesture Mode or Desktop Preview Mode.
 
 ### Q5: What if the visual effects load slowly?
 

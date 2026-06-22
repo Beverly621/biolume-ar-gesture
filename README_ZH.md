@@ -1,7 +1,7 @@
 # 🌿 Eco-Druid Synesthesia / 生态德鲁伊
 
 <p align="center">
-  <strong>植物拟态与绽放 AR 手势特效</strong>
+  <strong>植物拟态绽放手势特效</strong>
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <strong>用手掌唤醒花朵，用指尖种下苔藓，用双手拉开一张会呼吸的孢子网。</strong>
+  <strong>掌心开花，指尖生苔，菌丝随手势生长。</strong>
 </p>
 
 <p align="center">
@@ -27,25 +27,25 @@
 
 ## ✨ 项目概览
 
-**Eco-Druid Synesthesia / 生态德鲁伊** 是一个以实时摄像头为主入口的原创 AR 手势交互实验项目。它将真实手部动作转译为具有生命感的植物拟态反馈：掌心绽放花苞、指尖种下苔藓与水纹、双手拉伸出会呼吸的孢子菌丝网络。
+**Eco-Druid Synesthesia / 生态德鲁伊** 是一个以实时摄像头为主入口的原创 AR 手势交互实验项目。它将真实手部动作转译为具有生命感的植物拟态反馈：掌心绽放半透明荧光花朵、指尖生成苔藓生境、双手牵引出发光菌丝花枝。
 
 不同于常见的赛博霓虹 HUD、机械式手势识别界面或短视频滤镜，本项目尝试建立一种更柔和、更自然、更具叙事感的 AR 交互语言。它把浏览器、摄像头、手势输入、三维图形和植物生长意象结合在一起，让用户像进行一场轻量的数字植物仪式。
 
-项目不需要安装本地 AI 运行环境。当前主入口是 **Camera Gesture Mode / 实时摄像头手势模式**：点击 `Enter AR Garden / 进入生态花园` 后，页面会请求摄像头权限，将实时 `MediaStream` 绑定到浏览器 `video` 元素，在其上叠加 Three.js 植物特效层，并尝试在浏览器端加载 MediaPipe Hands 进行实时手部追踪。WebXR 仅作为可选增强能力，不再是进入体验的阻塞条件。
+项目不需要安装本地 AI 运行环境。当前主入口是 **Camera Gesture Mode / 实时摄像头手势模式**：点击 `Enter AR Garden / 进入生态花园` 后，页面会请求摄像头权限，在实时摄像头画面上叠加 Three.js 植物特效层，并尝试在浏览器端加载 MediaPipe Hands 进行实时手部追踪。WebXR 仅作为可选增强能力，不再是进入体验的阻塞条件。
 
 ## 🌱 核心交互
 
 | 手势 | 英文名称 | 视觉反馈 |
 | --- | --- | --- |
-| 张开手掌 | Palm Bloom | 掌心生成发光花苞，并释放柔和花粉粒子 |
-| 指尖轻触 | Moss Touch | 指尖在空间中种下苔藓，并扩散水纹波动 |
-| 双手拉开 | Spore Web | 双手之间生成贝塞尔菌丝网络，并流动孢子粒子 |
+| 张开手掌 | Palm Bloom | 掌心生成半透明荧光花朵，并释放柔和花粉粒子 |
+| 指尖轻触 | Moss Touch | 指尖在空间中生成发光苔藓生境 |
+| 双手拉开 | Mycelium Stretch | 随手势牵引出发光菌丝花枝 |
 
 项目同时提供三种体验路径：
 
 | 模式 | 说明 |
 | --- | --- |
-| Camera Gesture Mode | 主体验。使用 `getUserMedia`、实时 `video`、Three.js 叠加特效，并在可用时加载 MediaPipe Hands |
+| Camera Gesture Mode | 主体验。使用实时摄像头画面、Three.js 叠加特效，并在可用时加载 MediaPipe Hands |
 | Desktop Preview Mode | 无需摄像头，通过预览按钮模拟三种植物手势效果，方便展示与调试 |
 | Optional WebXR AR Mode | 仅在浏览器支持 WebXR immersive AR 时可用；不是进入体验的必要条件 |
 
@@ -58,7 +58,7 @@
 | 摄像头输入 | `navigator.mediaDevices.getUserMedia`、`video.srcObject`、`autoplay`、`muted`、`playsInline` |
 | 手势输入 | 浏览器端 MediaPipe Hands，WebXR Hand Input 作为可选增强 |
 | AR 能力 | Camera Gesture Mode 优先，WebXR 可选增强 |
-| 视觉效果 | 粒子、Shader、水纹、贝塞尔曲线、植物拟态动效 |
+| 视觉效果 | 抠图荧光植物素材、粒子、Shader、曲线、植物拟态动效 |
 | 运行环境 | Node.js 18+ |
 | 支持平台 | Windows / macOS / Linux |
 
@@ -122,7 +122,7 @@ http://localhost:3001/
 
 ### 实时摄像头手势模式
 
-使用 Safari、Chrome、Edge 或其他现代浏览器打开页面，点击 `Enter AR Garden / 进入生态花园`，并允许浏览器访问摄像头。授权后页面会进入实时摄像头手势模式，显示摄像头画面，在其上叠加 Three.js 植物特效层，并尝试启动 MediaPipe Hands 自动手势识别。
+使用 Safari、Chrome、Edge 或其他现代浏览器打开页面，点击 `Enter AR Garden / 进入生态花园`，并允许浏览器访问摄像头。授权后页面会进入实时摄像头手势模式，保留轻量状态栏、底部三手势 Dock 与植物特效层。
 
 进入实时摄像头手势模式前请确认：
 
@@ -130,7 +130,7 @@ http://localhost:3001/
 2. 摄像头权限已开启；
 3. 手部完整出现在摄像头画面中；
 4. 当前网络可以加载 `cdn.jsdelivr.net` 上的 MediaPipe Hands 资源；
-5. 如果自动手势识别不可用，可以使用 Camera Gesture Mode 内的手动特效按钮，或使用桌面预览按钮。
+5. 如果自动手势识别不可用，可以使用 Camera Gesture Mode 底部手势 Dock，或使用桌面预览按钮。
 
 WebXR AR 可在浏览器支持时作为增强模式使用，但不支持 WebXR 不会阻止摄像头体验启动。
 
@@ -171,7 +171,7 @@ npm start
 
 ### Q4：手势没有被识别怎么办？
 
-请确保手部完整进入画面，并保持较好的光线条件。自动手势识别依赖从 `cdn.jsdelivr.net` 加载的 MediaPipe Hands；如果资源无法加载或追踪不稳定，可以使用 Camera Gesture Mode 内的手动特效按钮，或切换到桌面预览模式体验三种特效。
+请确保手部完整进入画面，并保持较好的光线条件。自动手势识别依赖从 `cdn.jsdelivr.net` 加载的 MediaPipe Hands；如果资源无法加载或追踪不稳定，可以使用 Camera Gesture Mode 底部手势 Dock，或切换到桌面预览模式体验三种特效。
 
 ### Q5：页面打开了，但视觉效果加载较慢怎么办？
 

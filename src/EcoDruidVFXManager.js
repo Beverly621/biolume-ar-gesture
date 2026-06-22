@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise.js';
+import { ECO_DRUID_ASSETS, ECO_DRUID_ASSET_TODO } from './assetManifest.js';
 
 const SOURCE_ASSET_ROOT = '/Users/beverlykim/1-use/5-biolume/eco_druid_assets';
 const COLORS = Object.freeze({
@@ -13,6 +14,7 @@ const DEFAULT_ASSET_BASE_URL = '/assets/eco_druid_assets';
 const RIPPLE_NORMAL_PRIMARY = '03_water_ripple_textures/ripple_normal.png';
 const RIPPLE_NORMAL_FALLBACK = '03_water_ripple_textures/water_ripple_normal_map_preview.jpg';
 const FLOWER_REFERENCE_TEXTURE = '01_bioluminescent_plants/bioluminescent_fungi_reference_01.jpg';
+const ECO_VFX_ASSETS = ECO_DRUID_ASSETS;
 
 class TimedPool {
   constructor(createItem, initialSize = 0) {
@@ -90,6 +92,8 @@ export class EcoDruidVFXManager {
     this.activeTweens = [];
     this.ripples = [];
     this.myceliumFlows = [];
+    this.activeMossPlants = [];
+    this.activeBloomFlowers = [];
     this.mossSlots = [];
     this.mossCursor = 0;
     this.now = 0;
@@ -135,6 +139,30 @@ export class EcoDruidVFXManager {
   async loadTextures() {
     const loader = new THREE.TextureLoader();
     this.textures = {};
+
+    this.textures.glowingLily = await this.loadTextureWithFallback(loader, [
+      ECO_VFX_ASSETS.glowingLily,
+      `${this.assetBaseUrl}/${FLOWER_REFERENCE_TEXTURE}`
+    ]);
+    this.textures.glowingLily.colorSpace = THREE.SRGBColorSpace;
+
+    this.textures.mossCluster = await this.loadTextureWithFallback(loader, [
+      ECO_VFX_ASSETS.mossCluster,
+      ECO_VFX_ASSETS.backgroundForest
+    ]);
+    this.textures.mossCluster.colorSpace = THREE.SRGBColorSpace;
+
+    this.textures.myceliumBranch = await this.loadTextureWithFallback(loader, [
+      ECO_VFX_ASSETS.myceliumBranch,
+      `${this.assetBaseUrl}/02_growing_vines/growing_vine_animation_reference_01.png`
+    ]);
+    this.textures.myceliumBranch.colorSpace = THREE.SRGBColorSpace;
+
+    this.textures.translucentPetalVines = await this.loadTextureWithFallback(loader, [
+      ECO_VFX_ASSETS.translucentPetalVines,
+      ECO_VFX_ASSETS.glowingLily
+    ]);
+    this.textures.translucentPetalVines.colorSpace = THREE.SRGBColorSpace;
 
     this.textures.flowerReference = await this.loadTextureWithFallback(loader, [
       `${this.assetBaseUrl}/${FLOWER_REFERENCE_TEXTURE}`
@@ -227,6 +255,35 @@ export class EcoDruidVFXManager {
     });
 
     this.sharedMaterials.ripple = this.createRippleShaderMaterial();
+    this.sharedMaterials.glowingLilySprite = this.createGlowSpriteMaterial(this.textures.glowingLily, {
+      opacity: 1.0,
+      color: 0xffffff
+    });
+    this.sharedMaterials.mossClusterSprite = this.createGlowSpriteMaterial(this.textures.mossCluster, {
+      opacity: 0.92,
+      color: 0xffffff
+    });
+    this.sharedMaterials.myceliumSprite = this.createGlowSpriteMaterial(this.textures.myceliumBranch, {
+      opacity: 0.98,
+      color: 0xffffff
+    });
+    this.sharedMaterials.petalVineSprite = this.createGlowSpriteMaterial(this.textures.translucentPetalVines, {
+      opacity: 0.8,
+      color: 0xffffff
+    });
+  }
+
+  createGlowSpriteMaterial(texture, { opacity = 1, color = 0xffffff } = {}) {
+    return new THREE.SpriteMaterial({
+      map: texture,
+      color,
+      transparent: true,
+      opacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: false,
+      alphaTest: 0.02
+    });
   }
 
   /**
@@ -302,21 +359,37 @@ export class EcoDruidVFXManager {
     const group = new THREE.Group();
     group.visible = false;
 
-    // 当前资产文件夹提供的是花卉/菌类视觉参考图，不是 glTF 模型。
-    // 这里用 7 个贴图花瓣 + 发光花蕊构建程序化花朵代理，后续可替换为真实模型。
-    for (let i = 0; i < 7; i += 1) {
-      const petal = new THREE.Mesh(this.sharedGeometries.flowerPetal, this.sharedMaterials.flowerPetal);
-      const angle = (i / 7) * Math.PI * 2;
-      petal.position.set(Math.cos(angle) * 0.07, Math.sin(angle) * 0.07, 0);
-      petal.rotation.z = angle;
-      group.add(petal);
-    }
+    const auraMaterial = new THREE.SpriteMaterial({
+      color: this.palette.cyanGlow,
+      transparent: true,
+      opacity: 0.32,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: false
+    });
+    const aura = new THREE.Sprite(auraMaterial);
+    aura.scale.set(1.1, 1.1, 1);
+    aura.userData.role = 'aura';
+    group.add(aura);
 
-    const core = new THREE.Mesh(this.sharedGeometries.flowerCore, this.sharedMaterials.flowerCore);
-    core.position.z = 0.018;
+    const lily = new THREE.Sprite(this.sharedMaterials.glowingLilySprite.clone());
+    lily.scale.set(0.92, 1.36, 1);
+    lily.position.y = 0.12;
+    lily.userData.role = 'lily';
+    group.add(lily);
+
+    const core = new THREE.Mesh(
+      this.sharedGeometries.flowerCore,
+      this.sharedMaterials.flowerCore.clone()
+    );
+    core.scale.setScalar(1.4);
+    core.position.set(0, -0.02, 0.035);
+    core.userData.role = 'core';
     group.add(core);
 
     group.scale.setScalar(0);
+    group.userData.bloomProgress = 0;
+    group.userData.targetScale = new THREE.Vector3(0.01, 0.01, 0.01);
     this.scene.add(group);
     return group;
   }
@@ -401,36 +474,47 @@ export class EcoDruidVFXManager {
    * 当 isOpening 为真时，花朵在 0.5s 内从 0 缩放到 1，并从掌心发射 100 个暖黄到蓝绿的粒子。
    */
   handlePalmOpen(hand, isOpening) {
-    if (!isOpening) return;
-
     const palmPosition = this.readPalmPosition(hand, this.tmpVec3);
     const palmQuaternion = this.readPalmQuaternion(hand, this.tmpQuat);
+    const openness = typeof hand?.openingRatio === 'number'
+      ? THREE.MathUtils.clamp((hand.openingRatio - 0.16) / 0.22, 0, 1)
+      : (isOpening ? 1 : 0);
 
     const flower = this.flowerPool.acquire();
     flower.visible = true;
     flower.position.copy(palmPosition);
+    flower.position.y += 0.08;
     flower.quaternion.copy(palmQuaternion);
-    flower.scale.setScalar(0);
+    flower.scale.setScalar(0.12);
+    flower.userData.startedAt = this.now;
+    flower.userData.duration = 3.4;
+    flower.userData.openness = openness;
+    this.activeBloomFlowers.push(flower);
 
     this.addTween({
       target: flower.scale,
-      duration: 0.5,
-      from: 0,
-      to: 1,
+      duration: 0.72,
+      from: 0.12,
+      to: 1.28 + openness * 0.38,
       onUpdate: (scale, t) => {
         const eased = this.easeOutBack(t);
         flower.scale.setScalar(scale * eased);
+        this.updateBloomFlowerPose(flower, Math.max(openness, t));
       },
       onComplete: () => {
         this.addTween({
           target: flower.scale,
-          duration: 0.35,
-          from: 1,
+          duration: 0.86,
+          from: 1.28 + openness * 0.38,
           to: 0,
-          delay: 1.65,
-          onUpdate: (scale) => flower.scale.setScalar(scale),
+          delay: 2.25,
+          onUpdate: (scale, t) => {
+            flower.scale.setScalar(scale);
+            this.updateBloomFlowerPose(flower, 1 - t);
+          },
           onComplete: () => {
             flower.visible = false;
+            this.activeBloomFlowers = this.activeBloomFlowers.filter((item) => item !== flower);
             this.flowerPool.release(flower);
           }
         });
@@ -439,6 +523,34 @@ export class EcoDruidVFXManager {
 
     const particles = this.bloomParticlePool.acquire();
     this.spawnBloomParticles(particles, palmPosition);
+  }
+
+  updateBloomFlowerPose(flower, progress) {
+    flower.userData.bloomProgress = progress;
+    const lily = flower.children.find((child) => child.userData.role === 'lily');
+    const aura = flower.children.find((child) => child.userData.role === 'aura');
+    const core = flower.children.find((child) => child.userData.role === 'core');
+    const open = this.easeOutCubic(THREE.MathUtils.clamp(progress, 0, 1));
+
+    if (lily) {
+      lily.scale.set(
+        THREE.MathUtils.lerp(0.36, 1.08, open),
+        THREE.MathUtils.lerp(0.54, 1.52, open),
+        1
+      );
+      lily.material.opacity = THREE.MathUtils.lerp(0.42, 1.0, open);
+      lily.material.rotation = Math.sin(this.now * 0.9) * 0.035;
+    }
+
+    if (aura) {
+      aura.scale.setScalar(THREE.MathUtils.lerp(0.7, 1.55, open));
+      aura.material.opacity = THREE.MathUtils.lerp(0.14, 0.38, open);
+    }
+
+    if (core) {
+      core.scale.setScalar(THREE.MathUtils.lerp(0.5, 1.6, open));
+      core.material.emissiveIntensity = THREE.MathUtils.lerp(1.2, 3.8, open);
+    }
   }
 
   spawnBloomParticles(points, origin) {
@@ -467,7 +579,7 @@ export class EcoDruidVFXManager {
       const mix = i / Math.max(1, this.maxBloomParticles - 1);
       const color = this.palette.pollenWarmYellow.clone().lerp(this.palette.cyanGlow, mix);
       colors.setXYZ(i, color.r, color.g, color.b);
-      sizes.setX(i, 0.014 + Math.random() * 0.018);
+      sizes.setX(i, 0.022 + Math.random() * 0.03);
       life.setX(i, 1);
     }
 
@@ -483,8 +595,55 @@ export class EcoDruidVFXManager {
    */
   handleFingerTap(tipPosition) {
     const position = this.toVector3(tipPosition, this.tmpVec3);
-    this.activateMoss(position);
-    this.spawnRipple(position);
+    this.spawnMossPlant(position);
+    this.spawnMossSpores(position);
+  }
+
+  spawnMossPlant(position) {
+    const group = new THREE.Group();
+    group.position.copy(position);
+    group.position.y += 0.08;
+    group.rotation.z = (Math.random() - 0.5) * 0.16;
+
+    const plant = new THREE.Sprite(this.sharedMaterials.mossClusterSprite.clone());
+    const scale = 0.72 + Math.random() * 0.24;
+    plant.scale.set(scale, scale, 1);
+    plant.material.opacity = 0;
+    group.add(plant);
+
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      color: this.palette.mossSoftGreen,
+      transparent: true,
+      opacity: 0.22,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: false
+    }));
+    halo.scale.set(scale * 1.28, scale * 1.28, 1);
+    group.add(halo);
+
+    this.scene.add(group);
+    this.activeMossPlants.push({
+      group,
+      plant,
+      halo,
+      createdAt: this.now,
+      life: 3,
+      fadeDuration: 1.2,
+      scale,
+      rotation: group.rotation.z
+    });
+  }
+
+  spawnMossSpores(position) {
+    const particles = this.bloomParticlePool.acquire();
+    this.spawnBloomParticles(particles, position);
+    particles.userData.duration = 1.4;
+    const sizes = particles.geometry.getAttribute('aSize');
+    for (let i = 0; i < this.maxBloomParticles; i += 1) {
+      sizes.setX(i, 0.012 + Math.random() * 0.014);
+    }
+    sizes.needsUpdate = true;
   }
 
   activateMoss(position) {
@@ -534,33 +693,71 @@ export class EcoDruidVFXManager {
     const group = new THREE.Group();
     const curves = [];
     const particles = [];
+    const span = end.clone().sub(start);
+    const midPoint = start.clone().lerp(end, 0.5);
+    const angle = Math.atan2(span.y, span.x) - Math.PI * 0.5;
 
-    for (let i = 0; i < 5; i += 1) {
-      const offset = (i - 2) * 0.035;
+    const mainBranch = new THREE.Sprite(this.sharedMaterials.myceliumSprite.clone());
+    mainBranch.position.copy(midPoint);
+    mainBranch.position.z += 0.03;
+    mainBranch.material.rotation = angle;
+    mainBranch.material.opacity = 0;
+    mainBranch.scale.set(
+      THREE.MathUtils.clamp(distance * 1.4, 0.48, 1.28),
+      THREE.MathUtils.clamp(distance * 2.6, 0.72, 1.82),
+      1
+    );
+    mainBranch.userData.role = 'mainBranch';
+    group.add(mainBranch);
+
+    for (let i = 0; i < 7; i += 1) {
+      const offset = (i - 3) * 0.042;
       const mid = start.clone().lerp(end, 0.5);
       const normal = end.clone().sub(start).cross(new THREE.Vector3(0, 1, 0)).normalize();
       if (normal.lengthSq() < 0.001) normal.set(1, 0, 0);
 
       const n = this.noise.noise(i * 0.41, this.now * 0.2, distance * 2.0);
-      const controlA = start.clone().lerp(end, 0.33).addScaledVector(normal, offset + n * 0.025).add(new THREE.Vector3(0, 0.05 + i * 0.006, 0));
-      const controlB = mid.clone().lerp(end, 0.66).addScaledVector(normal, -offset + n * 0.02).add(new THREE.Vector3(0, -0.035 + i * 0.004, 0));
+      const lift = 0.08 + Math.abs(offset) * 0.45;
+      const controlA = start.clone().lerp(end, 0.31).addScaledVector(normal, offset + n * 0.035).add(new THREE.Vector3(0, lift, 0));
+      const controlB = mid.clone().lerp(end, 0.69).addScaledVector(normal, -offset + n * 0.03).add(new THREE.Vector3(0, -0.035 + i * 0.006, 0));
       const curve = new THREE.CubicBezierCurve3(start, controlA, controlB, end);
       curves.push(curve);
 
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(42));
-      const line = new THREE.Line(
-        lineGeometry,
-        new THREE.LineBasicMaterial({
-          color: this.palette.lavenderAura,
+      const tubeGeometry = new THREE.TubeGeometry(curve, 36, 0.004 + Math.abs(offset) * 0.018, 6, false);
+      const hueColor = [
+        this.palette.lavenderAura,
+        this.palette.cyanGlow,
+        this.palette.pollenWarmYellow,
+        this.palette.mossSoftGreen
+      ][i % 4].clone();
+      const tube = new THREE.Mesh(
+        tubeGeometry,
+        new THREE.MeshBasicMaterial({
+          color: hueColor,
           transparent: true,
-          opacity: 0.28,
-          blending: THREE.AdditiveBlending
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
         })
       );
-      group.add(line);
+      tube.userData.role = 'tube';
+      group.add(tube);
+
+      if (i % 2 === 0) {
+        const node = new THREE.Sprite(this.sharedMaterials.petalVineSprite.clone());
+        const u = 0.35 + i * 0.055;
+        node.position.copy(curve.getPoint(Math.min(0.82, u)));
+        node.position.z += 0.04;
+        const nodeScale = 0.12 + distance * 0.28;
+        node.scale.setScalar(nodeScale);
+        node.material.opacity = 0;
+        node.userData.role = 'node';
+        node.userData.baseScale = nodeScale;
+        group.add(node);
+      }
     }
 
-    const particleCount = 90;
+    const particleCount = 130;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const seeds = new Float32Array(particleCount);
@@ -624,8 +821,10 @@ export class EcoDruidVFXManager {
       curves,
       particles,
       points,
+      mainBranch,
       startedAt: this.now,
-      duration: 2.4
+      duration: 3.0,
+      distance
     });
   }
 
@@ -635,6 +834,7 @@ export class EcoDruidVFXManager {
     this.updateTweens(time);
     this.updateBloomParticles(time);
     this.updateMoss(time);
+    this.updateMossPlants(time);
     this.updateRipples(time);
     this.updateMycelium(time);
   }
@@ -708,6 +908,31 @@ export class EcoDruidVFXManager {
     this.mossMesh.instanceMatrix.needsUpdate = true;
   }
 
+  updateMossPlants(time) {
+    for (let i = this.activeMossPlants.length - 1; i >= 0; i -= 1) {
+      const moss = this.activeMossPlants[i];
+      const elapsed = time - moss.createdAt;
+      const grow = this.easeOutBack(Math.min(1, elapsed / 0.42));
+      const fade = elapsed <= moss.life
+        ? 1
+        : Math.max(0, 1 - (elapsed - moss.life) / moss.fadeDuration);
+
+      const breathe = 1 + Math.sin(time * 1.8 + i) * 0.025;
+      moss.group.scale.setScalar(grow * breathe);
+      moss.group.rotation.z = moss.rotation + Math.sin(time * 0.8 + i) * 0.025;
+      moss.plant.material.opacity = 0.88 * fade;
+      moss.halo.material.opacity = 0.24 * fade * (0.75 + Math.sin(time * 2.1 + i) * 0.25);
+
+      if (fade <= 0) {
+        moss.group.traverse((child) => {
+          child.material?.dispose?.();
+        });
+        this.scene.remove(moss.group);
+        this.activeMossPlants.splice(i, 1);
+      }
+    }
+  }
+
   updateRipples(time) {
     for (let i = this.ripples.length - 1; i >= 0; i -= 1) {
       const ripple = this.ripples[i];
@@ -759,7 +984,16 @@ export class EcoDruidVFXManager {
       const fade = Math.min(1, progress / 0.22) * Math.min(1, (1 - progress) / 0.24);
       flow.group.children.forEach((child) => {
         if (child.material?.opacity !== undefined) {
-          child.material.opacity = child.isLine ? 0.28 * fade : child.material.opacity;
+          if (child.userData.role === 'mainBranch') {
+            child.material.opacity = 0.72 * fade;
+            child.scale.y = THREE.MathUtils.lerp(0.24, THREE.MathUtils.clamp(flow.distance * 2.6, 0.72, 1.82), this.easeOutCubic(Math.min(1, progress / 0.36)));
+          } else if (child.userData.role === 'tube') {
+            child.material.opacity = 0.42 * fade;
+          } else if (child.userData.role === 'node') {
+            child.material.opacity = 0.55 * fade;
+            const pulse = 1 + Math.sin(time * 2.4 + child.position.x * 4.0) * 0.08;
+            child.scale.setScalar(child.userData.baseScale * pulse);
+          }
         }
       });
     }
@@ -820,6 +1054,8 @@ export const EcoDruidPalette = COLORS;
 export const EcoDruidAssetConfig = {
   sourceRoot: SOURCE_ASSET_ROOT,
   runtimeBaseUrl: DEFAULT_ASSET_BASE_URL,
+  visualAssets: ECO_VFX_ASSETS,
+  assetTodo: ECO_DRUID_ASSET_TODO,
   rippleNormalPrimary: RIPPLE_NORMAL_PRIMARY,
   rippleNormalFallback: RIPPLE_NORMAL_FALLBACK,
   flowerReferenceTexture: FLOWER_REFERENCE_TEXTURE

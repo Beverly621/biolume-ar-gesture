@@ -4,7 +4,7 @@
 
 当前项目名称：`biolume-ar-gesture`
 
-视觉入口版本：`Eco-Druid Synesthesia / 生态德鲁伊：植物拟态与绽放`
+视觉入口版本：`Eco-Druid Synesthesia / 生态德鲁伊 V2：夜光森林与植物拟态手势`
 
 ## 1. 项目整体操作步骤说明书
 
@@ -55,10 +55,10 @@ http://localhost:5174
 - `Enter AR Garden / 进入生态花园`：优先进入 Camera Gesture Mode，调用 `navigator.mediaDevices.getUserMedia` 请求摄像头权限，将实时 `MediaStream` 绑定到 `video.srcObject`，并在视频层上叠加 Three.js 植物特效。
 - `Camera Gesture Mode / 实时摄像头手势模式`：视频元素使用 `autoplay`、`muted`、`playsInline`；摄像头启动后尝试从 `cdn.jsdelivr.net` 动态加载 MediaPipe Hands，并通过 `handsModel.send({ image: video })` 在视频帧上执行手势识别。
 - `Exit Garden / 退出生态花园`：停止 MediaPipe 帧循环，并执行 `cameraStream.getTracks().forEach(track => track.stop())` 关闭摄像头。
-- `Launch Desktop Ritual / 启动桌面演示`：不请求摄像头，按顺序触发掌心绽放、指尖苔痕和菌丝拉伸。
-- `Palm Bloom / 掌心绽放`：调用 `handlePalmOpen(hand, true)`，花朵 0.5s 放大，100 个粒子 2s 消散。
-- `Moss Touch / 指尖苔痕`：调用 `handleFingerTap(tipPosition)`，苔藓实例 0.3s 淡入，并扩散水波纹 Shader。
-- `Spore Web / 菌丝拉伸`：调用 `handleTwoHandStretch(leftPalm, rightPalm, distance)`，双手距离大于 15cm 时生成 5 条三维贝塞尔菌丝流。
+- `Watch Desktop Preview / 观看桌面预览`：不请求摄像头，按顺序触发掌心绽放、指尖生境和菌丝牵引。
+- `Palm Bloom / 掌心绽放`：调用 `handlePalmOpen(hand, true)`，使用半透明荧光花朵 PNG sprite、光晕和花粉粒子表现掌心开花。
+- `Moss Touch / 指尖生境`：调用 `handleFingerTap(tipPosition)`，在指尖位置生成独立生命周期的荧光植物生境，停留后柔和消散。
+- `Mycelium Stretch / 菌丝牵引`：调用 `handleTwoHandStretch(leftPalm, rightPalm, distance)`，双手距离大于 15cm 时生成彩色菌丝枝、花点节点与孢子流。
 
 4. 真机与浏览器校验：
 
@@ -67,7 +67,7 @@ http://localhost:5174
 - 如果 MediaPipe Hands 加载失败或网络不可用，页面会保留实时摄像头画面与手动特效触发按钮，不进入白屏。
 - 如果摄像头权限失败，页面会显示明确错误提示并自动降级到 Desktop Preview Mode。
 - 支持 WebXR AR 的浏览器仍会创建 Three.js `ARButton`，可请求 `hit-test`，并将 `hand-tracking` 作为可选增强能力。
-- AR session 中会读取 `XRHand` 关节：掌心张开触发花朵，食指与拇指捏合触发指尖苔痕，双手掌心距离大于 15cm 触发菌丝拉伸。
+- AR session 中会读取 `XRHand` 关节：掌心张开触发花朵，食指与拇指捏合触发指尖生境，双手掌心距离大于 15cm 触发菌丝牵引。
 - 若设备不支持 WebXR 或 WebXR Hand Input，可使用 Camera Gesture Mode 或页面演示按钮验证 VFX 管线。
 
 ### 1.3 打包
@@ -168,21 +168,21 @@ https://github.com/Beverly621/biolume-ar-gesture/releases
 ## 2. 项目使用完整技术栈清单
 
 - 前端框架与构建：Vite 5。
-- UI 层：原生 HTML/CSS/JavaScript，沉浸式双语入口页 `EcoDruidLanding`。
+- UI 层：原生 HTML/CSS/JavaScript，沉浸式双语入口页 `EcoDruidLanding`，V2 采用夜光森林背景、右侧拉长 Gesture Dock、底部摄像头权限提示与 @Beverly 署名。
 - 图形渲染：Three.js 0.166。
 - 主体验：Camera Gesture Mode，使用实时摄像头视频与 Three.js 透明特效层叠加。
 - 摄像头权限：用户点击 CTA 后调用 `navigator.mediaDevices.getUserMedia`，将返回的 `MediaStream` 绑定到 `video.srcObject`；退出体验时停止全部 track。
 - 手势输入：MediaPipe Hands 浏览器端动态加载与视频帧识别；WebXR Hand Input joints 作为可选增强，读取 wrist、thumb-tip、index-finger-tip 等关节。
 - AR 能力：WebXR 与 Three.js `ARButton` 保留为可选增强，不再作为主入口依赖。
-- Shader：WebGL GLSL，自定义 `ShaderMaterial`。
+- Shader：WebGL GLSL，自定义 `ShaderMaterial`，保留粒子与菌丝流动逻辑。
 - 粒子系统：`THREE.Points` + 自定义 vertex/fragment shader。
-- 苔藓实例：`THREE.InstancedMesh` + `instanceOpacity` 自定义实例属性。
+- 苔藓/植物生境：透明 PNG sprite、光晕 sprite、粒子对象池与独立生命周期数组。
 - 贝塞尔曲线：`THREE.CubicBezierCurve3`。
 - 噪声：Three.js `ImprovedNoise`，用于菌丝曲线扰动与粒子漂移。
-- 资产来源：`/Users/beverlykim/1-use/5-biolume/eco_druid_assets`。
+- 资产来源：`/Users/beverlykim/1-use/5-biolume/eco_druid_assets` 与本次提供的抠图素材目录 `/Users/beverlykim/1-use/5-biolume/sucai/yi `。
 - 运行时资产目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/eco_druid_assets`。
-- UI 复刻背景资产：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/ui/eco-druid-reference.png`，来自 `/Users/beverlykim/1-use/5-biolume/2.png`，用于入口页首屏完全复刻视觉。
-- UI 种子资产：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/ui/eco-seed.png`，由 `/Users/beverlykim/1-use/5-biolume/2.png` 裁切生成，保留给后续非复刻式动态入口使用。
+- V2 视觉资产目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/public/assets/eco-vfx`，包含夜光森林背景、半透明百合、苔藓植株、菌丝枝与边框植物 PNG。
+- 统一资产入口：`src/assetManifest.js`，集中维护 `backgroundForest`、`glowingLily`、`mossCluster`、`myceliumBranch`、`borderPlants`、`leafGlow` 等路径，避免视觉素材散落在组件中。
 - 打包输出目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/dist`。
 - Release 自动化：GitHub Actions，工作流文件 `.github/workflows/release-build.yml`。
 - Release 附件：`biolume-ar-gesture-${{ github.ref_name }}.zip`，由 tag 或网页手动触发生成。
@@ -203,22 +203,25 @@ https://github.com/Beverly621/biolume-ar-gesture/releases
 
 ## 2.1 UI 模块结构
 
-- `AmbientBackground`：通过 CSS 深绿到墨蓝渐变、流动雾气、藤蔓暗影和 28 个漂浮孢子构成氛围背景。
-- `HeroCopy`：中英文分层标题、副标题和诗意说明，中文主标题占主视觉，英文退为辅助层级。
+- `AmbientBackground`：通过夜光森林背景图、12 层荧光植物 PNG、流动雾气和 42 个漂浮孢子构成入口页氛围。
+- `HeroCopy`：中英文分层标题、副标题和诗意说明；`@Beverly` 署名移动到副标题右侧箭头标注区域附近。
 - `ImmersiveViewport`：承载入口页预览层与可移动的透明 Three.js canvas；进入 Camera Gesture Mode 后 renderer canvas 会挂载到摄像头视频上方作为特效 overlay。
-- `GestureDock`：更轻的玻璃拟态悬浮手势选择面板，包含 Palm Bloom、Moss Touch、Spore Web 三个生态符文卡片；active 状态使用左侧柔光竖线而非厚重整块描边。
-- `CameraGestureExperience`：包含实时 `video`、Three.js VFX overlay、Camera/Tracking 状态、三个手动特效按钮和 `Exit Garden` 退出按钮。
-- `FooterHint`：浏览器兼容、摄像头权限和桌面预览提示。
+- `GestureDock`：右侧拉长并右移的玻璃拟态导航 Dock，包含 Palm Bloom、Moss Touch、Mycelium Stretch 三个生态符文卡片，以及 `Enter AR Garden` / `Watch Desktop Preview`。
+- `CameraGestureExperience`：包含实时 `video`、Three.js VFX overlay、左上轻量状态栏、底部三手势 Dock、右上 `Exit Garden` 和 `made by @Beverly`。
+- `FooterHint`：首页底部摄像头权限与桌面预览提示，保留但不作为遮挡画面的说明卡片。
 
-## 2.2 本次视觉重构记录
+## 2.2 V2 视觉重构记录
 
-- 按用户最新要求撤回上一版偏移布局，改为完全复刻 `/Users/beverlykim/1-use/5-biolume/2.png`。
-- `2.png` 已复制为 `public/assets/ui/eco-druid-reference.png` 并作为首屏视觉复刻层。
-- 页面保留真实 DOM、AR/WebXR、摄像头授权、手势卡片和桌面预览事件；视觉上通过透明热区覆盖在复刻图对应位置。
-- 初始状态隐藏 Three.js canvas，以保持首屏与参考图一致；用户点击手势卡或桌面预览后添加 `ritual-active` class 并显示 VFX 层。
-- README 项目截图已替换为 `docs/landing-preview.png`。
-- 最新交互修复后，`Enter AR Garden` 不再以 WebXR 为主入口；它会优先打开实时摄像头体验，并在可用时加载 MediaPipe Hands 自动识别掌心绽放、指尖苔痕与菌丝拉伸。
-- 摄像头或 MediaPipe 不可用时，页面保留明确状态提示和手动触发按钮，并可降级到 Desktop Preview Mode。
+- 本次 V2 不再使用单张复刻截图作为主视觉，而是使用真实 DOM、透明 PNG 植物、森林背景、雾气、粒子和 Three.js overlay 组合出可维护的夜光森林入口。
+- 首页删除中央 `Preview Mode` 说明卡片，恢复底部摄像头权限提示，避免遮挡中央荧光花。
+- 右侧 `Gesture Dock` 按用户标注拉长并右移，保持轻量玻璃拟态，减少对背景植物的遮挡。
+- `@Beverly` 署名从页面底部移动到副标题右侧标注区域附近，视觉上更接近作品信息而非页脚版权。
+- 进入生态花园页面保留左上状态栏和底部三手势按钮，但缩小尺寸，降低背景面积，避免遮挡摄像头主体画面。
+- `Exit Garden / 退出生态花园` 固定于右上角小型胶囊按钮。
+- `Palm Bloom` 从简化模型升级为半透明荧光百合 sprite、花蕊核心和花粉粒子。
+- `Moss Touch` 从水纹主视觉改为多株独立生命周期的荧光植物生境。
+- `Mycelium Stretch` 从细线孢子网升级为彩色菌丝枝、分叉和花点节点。
+- 摄像头或 MediaPipe 不可用时，页面保留明确状态提示和底部手动触发按钮，并可降级到 Desktop Preview Mode。
 
 ## 3. 跨 Windows 适配改造完整开发过程记录
 
@@ -345,7 +348,7 @@ git status --short
 - 依赖安装失败：确认 Node.js >= 18.18，npm 可访问 registry。
 - 素材缺失：确认 `/Users/beverlykim/1-use/5-biolume/eco_druid_assets` 存在并包含四个素材目录。
 - GitHub Actions 打包失败：确认 `public/assets/eco_druid_assets` 已在仓库中，且 `scripts/ensure-environment.mjs` 没有强制依赖本机 `/Users/...` 目录。
-- 水波纹贴图 404：补充 `ripple_normal.png`，或保留现有 `water_ripple_normal_map_preview.jpg` 回退文件。
+- 水波纹贴图 404：V2 的 `Moss Touch` 已不再以水纹作为主视觉，但保留 `ripple_normal.png` 兼容旧 Shader；如旧效果仍需启用，补充该贴图或保留回退文件。
 - 摄像头无法启动：确认页面运行在 `localhost` 或 HTTPS，浏览器地址栏已允许摄像头权限，系统隐私设置允许当前浏览器访问摄像头，且摄像头没有被其他应用占用。
 - MediaPipe Hands 加载失败：确认网络可访问 `https://cdn.jsdelivr.net/npm/@mediapipe/hands`；失败时仍可使用 Camera Gesture Mode 内的手动按钮或 Desktop Preview Mode。
 - WebXR 按钮不可用：确认浏览器、设备与安全上下文支持 WebXR AR；该能力仅作为增强模式，不影响 Camera Gesture Mode。
@@ -353,14 +356,15 @@ git status --short
 
 ## 核心源码入口
 
-- `src/EcoDruidVFXManager.js`：核心 Three.js/WebXR 手势 VFX 管理类。
+- `src/EcoDruidVFXManager.js`：核心 Three.js/WebXR 手势 VFX 管理类；V2 内含半透明荧光花、植物生境、菌丝牵引、对象池和粒子更新逻辑。
+- `src/assetManifest.js`：V2 视觉资产统一映射，集中管理夜光森林背景、荧光百合、苔藓植物、菌丝枝和花园边框植物。
 - `src/skills/skillRegistry.js`：前端技能模块注册与运行时校验。
 - `src/skills/mediapipeHandRuntime.js`：Camera Gesture Mode 的 MediaPipe Hands 动态加载、视频帧识别和三种生态手势映射。
 - `src/xrHandGestures.js`：`requestCameraStream` 摄像头流请求、摄像头授权预检与 WebXR Hand Input 手势映射。
-- `src/main.js`：沉浸式入口页结构、Camera Gesture Mode、视频流绑定、ARButton 可选增强、CTA 与渲染循环。
-- `src/styles.css`：Eco-Druid Synesthesia 入口页视觉复刻层、透明交互热区、Camera Gesture Mode 全屏视频与 Three.js VFX overlay 状态。
-- `public/assets/ui/eco-druid-reference.png`：入口页首屏完整视觉复刻背景。
-- `public/assets/ui/eco-seed.png`：入口页中央沉睡发光种子图像资产。
+- `src/main.js`：沉浸式入口页结构、V2 Gesture Dock、底部权限提示、Camera Gesture Mode、视频流绑定、ARButton 可选增强、CTA 与渲染循环。
+- `src/styles.css`：Eco-Druid Synesthesia V2 夜光森林入口、右侧拉长 Dock、底部权限提示、花园页轻量 HUD、全屏视频与 Three.js VFX overlay 状态。
+- `public/assets/eco-vfx/`：V2 夜光森林和抠图荧光植物资产目录。
+- `public/assets/ui/eco-seed.png`：历史 UI 种子图像资产，当前 V2 首屏优先使用 `eco-vfx/glowing-lily.png`。
 - `scripts/ensure-environment.mjs`：依赖、素材、外部 `.env`、Git remote 初始化。
 - `scripts/sync-assets.mjs`：素材同步。
 - `scripts/deploy-ssh.mjs`：先构建校验，再通过 SSH 443 推送。

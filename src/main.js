@@ -1,37 +1,58 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 import { EcoDruidVFXManager } from './EcoDruidVFXManager.js';
+import { ECO_DRUID_ASSETS } from './assetManifest.js';
 import { initializeEcoDruidSkillRuntime } from './skills/skillRegistry.js';
 import { createCameraHandTracker } from './skills/mediapipeHandRuntime.js';
 import { requestCameraStream, XRHandGestureController } from './xrHandGestures.js';
 import './styles.css';
 
 const app = document.querySelector('#app');
+const ambientPlantMarkup = ECO_DRUID_ASSETS.borderPlants.map((src, index) => (
+  `<img class="ambient-plant ambient-plant-${index + 1}" src="${src}" alt="" />`
+)).join('');
+const borderPlantMarkup = ECO_DRUID_ASSETS.borderPlants.map((src, index) => (
+  `<img class="garden-border-plant garden-border-plant-${index + 1}" src="${src}" alt="" />`
+)).join('');
+
 app.innerHTML = `
   <main class="eco-druid-landing" aria-label="Eco-Druid Synesthesia AR landing">
     <section class="ambient-background" aria-hidden="true">
+      <img class="forest-panorama" src="${ECO_DRUID_ASSETS.backgroundForest}" alt="" />
+      <img class="forest-plant-left" src="${ECO_DRUID_ASSETS.translucentPetalVines}" alt="" />
+      <img class="forest-plant-right" src="${ECO_DRUID_ASSETS.myceliumBranch}" alt="" />
+      <img class="forest-lily-glow" src="${ECO_DRUID_ASSETS.glowingLily}" alt="" />
+      ${ambientPlantMarkup}
       <div class="mist mist-a"></div>
       <div class="mist mist-b"></div>
       <div class="vine-shadow vine-shadow-a"></div>
       <div class="vine-shadow vine-shadow-b"></div>
-      ${Array.from({ length: 28 }, (_, index) => `<span class="spore spore-${index + 1}"></span>`).join('')}
+      ${Array.from({ length: 42 }, (_, index) => {
+        const x = (11 + index * 17) % 96;
+        const y = (7 + index * 29) % 92;
+        const delay = (index % 9) * -0.6;
+        return `<span class="spore ambient-spore spore-${index + 1}" style="--x:${x}%;--y:${y}%;--delay:${delay}s"></span>`;
+      }).join('')}
     </section>
 
     <section class="hero-copy" aria-labelledby="hero-title">
-      <p class="kicker">✧ AR GESTURE EXPERIMENT · BOTANICAL RITUAL</p>
+      <p class="kicker">✧ AR BOTANICAL RITUAL · CAMERA GESTURE</p>
       <h1 id="hero-title">
         <span class="title-cn">生态德鲁伊</span>
         <span class="title-en">Eco-Druid Synesthesia</span>
       </h1>
       <h2>
-        <span class="subtitle-cn">植物拟态 AR 手势特效</span>
-        <span class="subtitle-en">Botanical gestures in augmented reality.</span>
+        <span class="subtitle-cn">植物拟态绽放手势特效</span>
+        <span class="subtitle-en">Botanical Blooming Gesture Experience</span>
       </h2>
       <div class="hero-divider" aria-hidden="true"><span></span></div>
       <p class="poem">
-        <span class="poem-cn">掌心开花，指尖生苔，双手牵引孢子之网。</span>
-        <span class="poem-en">Bloom with your palm. Seed with your touch. Weave with both hands.</span>
+        <span class="poem-cn">掌心开花，指尖生苔，菌丝随手势生长。</span>
+        <span class="poem-en">Bloom in your palm.</span>
+        <span class="poem-en">Grow moss with your touch.</span>
+        <span class="poem-en">Stretch glowing mycelium through motion.</span>
       </p>
+      <p class="landing-signature">@Beverly</p>
     </section>
 
     <section class="ar-viewport-shell" aria-label="AR preview viewport">
@@ -41,14 +62,7 @@ app.innerHTML = `
       <div class="viewport" id="viewport"></div>
       <div class="viewport-vignette" aria-hidden="true"></div>
       <div class="seed-preview" aria-hidden="true">
-        <img src="/assets/ui/eco-seed.png" alt="" />
-      </div>
-      <div class="ar-state-card" id="arStateCard">
-        <p class="state-label" id="arStateLabel">Preview Mode</p>
-        <p class="state-copy" id="arStateCopy">
-          Enter AR Garden opens realtime camera mode. Desktop Preview is available without camera access.<br>
-          进入生态花园将优先打开实时摄像头模式，桌面预览无需摄像头权限。
-        </p>
+        <img src="${ECO_DRUID_ASSETS.leafGlow}" alt="" />
       </div>
     </section>
 
@@ -56,7 +70,7 @@ app.innerHTML = `
       <span class="dock-star" aria-hidden="true">✦</span>
       <div class="dock-head">
         <p>Gesture Dock</p>
-        <span id="status">初始化 WebXR 场景中</span>
+        <span id="status">Camera Mode Ready</span>
       </div>
       <button class="gesture-card active" id="demoBloom" type="button" data-gesture="bloom">
         <span class="gesture-icon" aria-hidden="true">
@@ -73,9 +87,9 @@ app.innerHTML = `
           <svg viewBox="0 0 24 24"><path d="M12 20c4.2 0 7.6-2.1 7.6-4.7S16.2 10.6 12 10.6 4.4 12.7 4.4 15.3 7.8 20 12 20Z"/><path d="M12 16.6c2.3 0 4.2-.7 4.2-1.6s-1.9-1.6-4.2-1.6-4.2.7-4.2 1.6 1.9 1.6 4.2 1.6Z"/><path d="M12 4c1.1 2.2 1.1 4.1 0 5.8C10.9 8.1 10.9 6.2 12 4Z"/></svg>
         </span>
         <span class="gesture-text">
-          <strong>指尖苔痕</strong>
+          <strong>指尖生境</strong>
           <em>Moss Touch</em>
-          <span class="gesture-description">Touch the air to seed moss and ripples.</span>
+          <span class="gesture-description">Grow moss with your touch.</span>
         </span>
       </button>
       <button class="gesture-card" id="demoStretch" type="button" data-gesture="web">
@@ -83,9 +97,9 @@ app.innerHTML = `
           <svg viewBox="0 0 24 24"><path d="M4 12c4-4.7 12-4.7 16 0-4 4.7-12 4.7-16 0Z"/><path d="M5.5 12c3.4 1.9 9.6 1.9 13 0"/><path d="M5.5 12c3.4-1.9 9.6-1.9 13 0"/><path d="M8 9.2 16 14.8M16 9.2 8 14.8"/></svg>
         </span>
         <span class="gesture-text">
-          <strong>菌丝拉伸</strong>
-          <em>Spore Web</em>
-          <span class="gesture-description">Pull your hands apart to weave a living spore web.</span>
+          <strong>菌丝牵引</strong>
+          <em>Mycelium Stretch</em>
+          <span class="gesture-description">Stretch glowing mycelium through motion.</span>
         </span>
       </button>
       <div class="dock-actions">
@@ -108,20 +122,28 @@ app.innerHTML = `
     <section class="camera-experience" id="cameraExperience" hidden aria-label="Camera gesture experience">
       <video id="cameraVideo" class="camera-video" autoplay muted playsinline></video>
       <div id="cameraVfxLayer" class="camera-vfx-layer" aria-hidden="true"></div>
+      <div class="garden-frame-overlay" aria-hidden="true">
+        ${borderPlantMarkup}
+        ${Array.from({ length: 24 }, (_, index) => {
+          const x = (8 + index * 23) % 94;
+          const y = (5 + index * 31) % 88;
+          const delay = (index % 7) * -0.7;
+          return `<span class="garden-spore garden-spore-${index + 1}" style="--x:${x}%;--y:${y}%;--delay:${delay}s"></span>`;
+        }).join('')}
+      </div>
       <div class="camera-shade" aria-hidden="true"></div>
       <div class="camera-hud">
-        <div class="camera-status-panel">
-          <p class="camera-eyebrow">Camera Gesture Mode</p>
-          <h2>实时生态花园</h2>
-          <span id="cameraStatus">Camera Ready / 摄像头待开启</span>
-          <small id="cameraHint">摄像头启动后会尝试加载 MediaPipe Hands；也可使用下方按钮手动测试三个特效。</small>
+        <div class="camera-status-panel" aria-live="polite">
+          <span id="cameraStatus">Tracking Hands · 正在识别手势</span>
+          <small id="cameraHint"></small>
         </div>
         <div class="camera-trigger-row" aria-label="Manual gesture effect triggers">
-          <button id="cameraBloom" type="button">掌心绽放<br><span>Palm Bloom</span></button>
-          <button id="cameraMoss" type="button">指尖苔痕<br><span>Moss Touch</span></button>
-          <button id="cameraWeb" type="button">菌丝拉伸<br><span>Spore Web</span></button>
+          <button id="cameraBloom" class="active" type="button" data-gesture="bloom">掌心绽放<br><span>Palm Bloom</span></button>
+          <button id="cameraMoss" type="button" data-gesture="moss">指尖生境<br><span>Moss Touch</span></button>
+          <button id="cameraWeb" type="button" data-gesture="web">菌丝牵引<br><span>Mycelium Stretch</span></button>
         </div>
         <button id="exitGarden" class="exit-garden" type="button">Exit Garden / 退出生态花园</button>
+        <p class="made-by">made by @Beverly</p>
       </div>
     </section>
 
@@ -131,9 +153,6 @@ app.innerHTML = `
 
 const viewport = document.querySelector('#viewport');
 const status = document.querySelector('#status');
-const arStateLabel = document.querySelector('#arStateLabel');
-const arStateCopy = document.querySelector('#arStateCopy');
-const arStateCard = document.querySelector('#arStateCard');
 const enterGarden = document.querySelector('#enterGarden');
 const desktopRitual = document.querySelector('#desktopRitual');
 const cameraExperience = document.querySelector('#cameraExperience');
@@ -157,6 +176,7 @@ camera.lookAt(0, 0.75, 0);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.xr.enabled = true;
 viewport.appendChild(renderer.domElement);
@@ -191,7 +211,7 @@ async function bootstrap() {
   await vfx.init();
   const skills = initializeEcoDruidSkillRuntime(vfx);
   const handGestures = new XRHandGestureController({ renderer, skills, status });
-  status.textContent = '正在检测 AR 支持状态';
+  status.textContent = 'Camera Mode Ready';
 
   const arButton = ARButton.createButton(renderer, {
     requiredFeatures: ['hit-test'],
@@ -211,7 +231,7 @@ async function bootstrap() {
 
   const setActiveGesture = (gesture) => {
     document.body.classList.add('ritual-active');
-    document.querySelectorAll('.gesture-card').forEach((card) => {
+    document.querySelectorAll('.gesture-card, .camera-trigger-row button').forEach((card) => {
       card.classList.toggle('active', card.dataset.gesture === gesture);
     });
     cameraStatus.textContent = getGestureStatus(gesture);
@@ -287,9 +307,9 @@ async function bootstrap() {
   async function handleEnterARGarden() {
     setExperienceMode('checking-camera');
     clearModeNotice();
-    status.textContent = '正在请求摄像头权限，准备进入 Camera Gesture Mode';
-    cameraStatus.textContent = 'Checking Camera / 正在请求摄像头权限';
-    cameraHint.textContent = 'Safari / Chrome / Edge 会优先进入实时摄像头模式，WebXR 只作为增强能力。';
+    status.textContent = 'Camera Permission';
+    cameraStatus.textContent = 'Checking Camera / 等待授权';
+    cameraHint.textContent = 'Camera Permission · 摄像头权限';
 
     try {
       const stream = await requestCameraStream();
@@ -321,8 +341,7 @@ async function bootstrap() {
     resizeRendererToHost();
     status.textContent = 'Camera Active / 摄像头已开启';
     cameraStatus.textContent = 'Camera Active / 摄像头已开启';
-    cameraHint.textContent = '正在加载 MediaPipe Hands；若加载失败，可继续使用下方手动触发按钮。';
-    arStateCard.classList.add('permission-granted');
+    cameraHint.textContent = 'Tracking Hands · 正在识别手势';
 
     try {
       cameraHandTracker = await createCameraHandTracker({
@@ -333,10 +352,10 @@ async function bootstrap() {
       });
       cameraHandTracker.start();
       status.textContent = 'Tracking Hands / 正在识别手势';
-      cameraHint.textContent = '自动手势识别已启用：张开手掌、捏合指尖、双手拉开即可触发生态特效。';
+      cameraHint.textContent = '张开手掌、轻触指尖、双手拉开即可触发。';
     } catch (error) {
       cameraStatus.textContent = 'Camera Active / 摄像头已开启';
-      cameraHint.textContent = `自动手势识别暂不可用：${error.message || error}。请使用下方三个按钮手动测试特效。`;
+      cameraHint.textContent = `手势识别暂不可用，可使用底部按钮测试。`;
     }
   }
 
@@ -415,8 +434,8 @@ async function bootstrap() {
 
   function getGestureStatus(gesture) {
     if (gesture === 'bloom') return 'Palm Bloom / 掌心绽放';
-    if (gesture === 'moss') return 'Moss Touch / 指尖苔痕';
-    if (gesture === 'web') return 'Spore Web / 菌丝拉伸';
+    if (gesture === 'moss') return 'Moss Touch / 指尖生境';
+    if (gesture === 'web') return 'Mycelium Stretch / 菌丝牵引';
     return 'Tracking Hands / 正在识别手势';
   }
 
@@ -460,15 +479,11 @@ async function detectARSupport() {
 function updateARState(isReady) {
   document.body.classList.toggle('ar-ready', isReady);
   if (isReady) {
-    arStateLabel.textContent = 'Camera Ready';
-    arStateCopy.innerHTML = 'Enter AR Garden will open the realtime camera gesture experience. WebXR AR is available as enhanced mode.<br>进入生态花园将打开实时摄像头手势体验，WebXR AR 可作为增强模式。';
-    status.textContent = 'Camera Ready，可进入实时摄像头手势体验';
+    status.textContent = 'Camera Mode Ready';
     return;
   }
 
-  arStateLabel.textContent = 'Preview Mode';
-  arStateCopy.innerHTML = 'Enter AR Garden opens realtime camera mode. Desktop Preview is available without camera access.<br>进入生态花园将优先打开实时摄像头模式，桌面预览无需摄像头权限。';
-  status.textContent = 'Camera Mode Ready，WebXR 不支持也可进入体验';
+  status.textContent = 'Camera Mode Ready';
 }
 
 function runDesktopRitual(skills, demoHand, setExperienceMode = () => {}) {
