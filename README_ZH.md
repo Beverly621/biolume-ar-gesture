@@ -171,7 +171,15 @@ npm start
 
 ## 📄 License
 
-本项目采用 MIT License。你可以在遵守许可证与署名要求的前提下进行学习、修改和二次开发。
+本项目采用 **GNU Affero General Public License v3.0 or later（AGPL-3.0-or-later）** 许可证开源。
+
+**核心约束：**
+
+- 任何人对本项目代码进行修改、衍生并部署为可通过网络访问的服务（包括 VR/AR 云端交互、WebXR 体验等），必须以同一许可证公开其完整对应源代码。
+- 不得将本项目核心交互逻辑、植物拟态特效、Shader 与原创美术逻辑代码直接打包进闭源商业项目或资产商店进行二次售卖。
+- 详情请参阅 [LICENSE](./LICENSE) 文件。
+
+AGPL-3.0 适用于本仓库中的原创源代码与创作实现；第三方 SDK、运行时或素材仍遵循其各自许可证。
 
 ## 🌿 原创性与二次开源说明
 
@@ -188,3 +196,7 @@ Original author:@ Beverly621
 ```
 
 如果你发布衍生版本，请明确说明你的版本是基于本项目的二次开发，并附上原仓库地址与原作者信息。
+
+**Copyright (c) 2026 Beverly / @Beverly621. All rights reserved.**
+
+**本项目核心交互逻辑与视觉特效由作者原创。未经授权，禁止将本项目用于任何商业用途、录制付费教程或在资产商店（如 Unity Asset Store / Unreal Marketplace）二次售卖。**

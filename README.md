@@ -171,7 +171,15 @@ Browser-side models, Three.js scenes, and related resources may take some time t
 
 ## 📄 License
 
-This project is released under the MIT License. You may study, modify, and build upon it while respecting the license and attribution requirements.
+This project is released under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**.
+
+**Core constraints:**
+
+- Anyone who modifies, derives from, or deploys this project as a network-accessible service, including VR/AR cloud interaction or WebXR experiences, must make the complete corresponding source code available under the same license.
+- The core interaction logic, botanical visual effects, shaders, and original art-direction code in this project may not be repackaged into a closed-source commercial project or asset-store product for resale.
+- See [LICENSE](./LICENSE) for the full license text.
+
+AGPL-3.0 applies to the original source code and creative implementation in this repository. It does not grant rights over third-party SDKs, runtimes, or assets that remain governed by their own licenses.
 
 ## 🌿 Originality & Reuse Notice
 
@@ -188,3 +196,7 @@ Original author: Beverly / @kimbeverly629
 ```
 
 If you publish a derivative version, clearly state that your version is based on this project and include the original repository URL and original author information.
+
+**Copyright (c) 2026 Beverly / @Beverly621. All rights reserved.**
+
+**本项目核心交互逻辑与视觉特效由作者原创。未经授权，禁止将本项目用于任何商业用途、录制付费教程或在资产商店（如 Unity Asset Store / Unreal Marketplace）二次售卖。**
