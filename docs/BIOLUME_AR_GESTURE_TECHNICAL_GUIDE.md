@@ -6,6 +6,10 @@
 
 视觉入口版本：`Eco-Druid Synesthesia / 生态德鲁伊 V2：夜光森林与植物拟态手势`
 
+当前发布版本：`v1.0.1`
+
+当前 Release 状态：GitHub Actions 仅通过版本标签自动打包并发布 Release，不使用网页手动触发，不手动上传附件。
+
 ## 1. 项目整体操作步骤说明书
 
 ### 1.1 项目启动
@@ -112,9 +116,11 @@ npm run deploy:ssh
 3. 初始化或修正 Git remote 为 SSH 地址。
 4. 使用 `GIT_SSH_COMMAND="ssh -p 443"` 提交并推送当前分支。
 
-### 1.5 GitHub Actions 自动打包 Release
+### 1.5 GitHub Actions 自动打包 Release（作者维护流程）
 
-本项目新增云端自动打包工作流：
+本项目使用 GitHub Actions 云端自动打包 Release。公开 README 只保留下载入口；以下流程仅供作者维护版本时使用。
+
+工作流文件：
 
 ```text
 .github/workflows/release-build.yml
@@ -122,29 +128,67 @@ npm run deploy:ssh
 
 触发方式：
 
-- 推送 `v*` 版本标签，例如 `v1.0.0`。
-- 在 GitHub 网页手动进入 `Actions -> Auto Build Release Zip -> Run workflow`。
+- 仅推送符合 `v*.*.*` 的版本标签，例如 `v1.0.1`。
+- 不使用 GitHub 网页 `Run workflow` 手动触发。
+- 不手动上传 Release 附件；`.zip`、`.tar.gz` 与 `checksums.txt` 都由 Actions 自动生成并挂载。
+
+当前版本号位置：
+
+```text
+package.json
+package-lock.json
+```
+
+发布前必须确认两个文件版本一致，例如当前为：
+
+```text
+1.0.1
+```
+
+推荐发布顺序：
+
+1. 修改 `package.json` 与 `package-lock.json` 的版本号。
+2. 执行 `npm run build`，确认生产构建通过。
+3. 提交版本号变更并推送 `main`。
+4. 创建 annotated tag。
+5. 推送 tag 触发 GitHub Actions Release。
 
 本地创建版本标签并推送：
 
 ```bash
-git tag v1.0.0
-GIT_SSH_COMMAND="ssh -p 443" git push origin v1.0.0
+git tag -a v1.0.1 -m "Release v1.0.1"
+git push origin v1.0.1
+```
+
+也可以在 `package.json` 版本号已经正确、且确认要发布当前版本时使用：
+
+```bash
+npm run release:tag
 ```
 
 GitHub Actions 会自动执行：
 
 1. 拉取仓库代码。
-2. 使用 Node.js 20。
-3. 执行 `npm run setup`，在 GitHub Actions 环境中跳过本机外部 `.env` 创建，并使用仓库内运行时素材。
-4. 执行 `npm run build`，先验证生产构建可通过。
-5. 生成纯净源码压缩包 `biolume-ar-gesture-${{ github.ref_name }}.zip`。
-6. 通过仓库内置 `GITHUB_TOKEN` 创建 Release 并挂载 zip 附件。
+2. 使用 Node.js 22，并启用 npm 缓存。
+3. 执行 `npm ci`，按 `package-lock.json` 安装依赖。
+4. 执行 `npm run build`；该命令会先运行 `npm run setup`，在 GitHub Actions 环境中跳过本机外部 `.env` 创建，并使用仓库内运行时素材。
+5. 创建 `release/biolume-ar-gesture-${GITHUB_REF_NAME}` 暂存目录。
+6. 复制 `dist/`、`README.md`、`README_ZH.md`、`LICENSE`、`package.json`、`package-lock.json`。
+7. 生成 `biolume-ar-gesture-${GITHUB_REF_NAME}.zip`。
+8. 生成 `biolume-ar-gesture-${GITHUB_REF_NAME}.tar.gz`。
+9. 生成 `checksums.txt`，包含 zip 与 tar.gz 的 SHA256。
+10. 使用仓库内置 `github.token` 调用 `gh release create` 创建 GitHub Release，并挂载全部附件。
 
 固定下载路径：
 
 ```text
-https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.0/biolume-ar-gesture-v1.0.0.zip
+https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.zip
+```
+
+当前 tar.gz 下载路径：
+
+```text
+https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.tar.gz
 ```
 
 历史版本页面：
@@ -153,16 +197,23 @@ https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.0/biolum
 https://github.com/Beverly621/biolume-ar-gesture/releases
 ```
 
-压缩包会自动排除：
+Release 附件内容：
 
-- `node_modules/`
-- `.git/`
-- `.github/workflows/`
-- `dist/`
-- `*.log`
-- `.DS_Store`
-- `.env`、`.env.*`、`env/`
-- `*example*`
+- `dist/`：生产构建产物。
+- `README.md`：英文公开说明。
+- `README_ZH.md`：中文公开说明。
+- `LICENSE`：AGPL-3.0 许可证全文。
+- `package.json` 与 `package-lock.json`：版本与依赖锁定信息。
+
+公开 README 中保留的下载入口：
+
+```text
+最新版压缩包：
+https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.zip
+
+所有历史版本：
+https://github.com/Beverly621/biolume-ar-gesture/releases
+```
 
 ## 2. 项目使用完整技术栈清单
 
@@ -184,7 +235,8 @@ https://github.com/Beverly621/biolume-ar-gesture/releases
 - 统一资产入口：`src/assetManifest.js`，集中维护 `backgroundForest`、`glowingLily`、`mossCluster`、`myceliumBranch`、`borderPlants`、`leafGlow` 等路径，避免视觉素材散落在组件中。
 - 打包输出目录：`/Users/beverlykim/3-program-v2/biolume-ar-gesture/dist`。
 - Release 自动化：GitHub Actions，工作流文件 `.github/workflows/release-build.yml`。
-- Release 附件：`biolume-ar-gesture-${{ github.ref_name }}.zip`，由 tag 或网页手动触发生成。
+- Release 触发方式：仅推送 `v*.*.*` 标签，不启用网页手动触发。
+- Release 附件：`biolume-ar-gesture-${GITHUB_REF_NAME}.zip`、`biolume-ar-gesture-${GITHUB_REF_NAME}.tar.gz`、`checksums.txt`，由标签推送自动生成。
 - Git 协议：SSH。
 - Git 仓库：`git@github.com:Beverly621/biolume-ar-gesture.git`。
 - 本地开发端口：`5174`。
@@ -192,13 +244,18 @@ https://github.com/Beverly621/biolume-ar-gesture/releases
 - 环境变量文件：`/Users/beverlykim/1-use/5-biolume/.env`。
 - README 双语结构：`README.md` 为英文版，`README_ZH.md` 为中文版；两者需保持功能、运行方式、限制说明一致。
 
-## 2.0 下载路径与发布入口
+## 2.0 下载路径与作者发布入口
 
-- 最新版示例压缩包：`https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.0/biolume-ar-gesture-v1.0.0.zip`
+- 当前版本：`v1.0.1`
+- 最新版 zip：`https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.zip`
+- 最新版 tar.gz：`https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.tar.gz`
 - 历史版本页面：`https://github.com/Beverly621/biolume-ar-gesture/releases`
-- 工作流入口：GitHub 仓库 `Actions -> Auto Build Release Zip`。
-- 手动触发：点击 `Run workflow`。
-- 自动触发：推送 `v*` 标签。
+- 工作流入口：GitHub 仓库 `Actions -> Build Release`，仅用于查看运行结果。
+- 手动触发：无；不使用 `Run workflow`。
+- 自动触发：推送 `v*.*.*` 标签。
+- 作者发布命令：`npm run release:tag`。
+- 当前版本提交：`3cfff85 Bump version to 1.0.1`。
+- 当前版本标签：`v1.0.1`。
 
 ## 2.1 UI 模块结构
 
@@ -370,4 +427,4 @@ git status --short
 - `scripts/ensure-environment.mjs`：依赖、素材、外部 `.env`、Git remote 初始化。
 - `scripts/sync-assets.mjs`：素材同步。
 - `scripts/deploy-ssh.mjs`：先构建校验，再通过 SSH 443 推送。
-- `.github/workflows/release-build.yml`：推送 `v*` 标签或网页手动触发后自动生成 GitHub Release zip 附件。
+- `.github/workflows/release-build.yml`：推送 `v*.*.*` 标签后自动生成 GitHub Release zip、tar.gz 与 checksums 附件。
