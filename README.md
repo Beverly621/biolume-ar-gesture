@@ -113,6 +113,16 @@ Then open:
 http://localhost:3001/
 ```
 
+## 📥 Download Clean Release Package
+
+Latest release archive:
+
+[biolume-ar-gesture-v1.0.1.zip](https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.zip)
+
+All historical versions:
+
+[Go to the Releases page](https://github.com/Beverly621/biolume-ar-gesture/releases)
+
 ## 📦 Automated Release
 
 This repository uses GitHub Actions to build and publish GitHub Releases automatically. Do not upload release archives manually.

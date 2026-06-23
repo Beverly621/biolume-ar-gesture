@@ -113,6 +113,16 @@ npm start -- --port 3001
 http://localhost:3001/
 ```
 
+## 📥 下载纯净安装包
+
+最新版压缩包：
+
+[biolume-ar-gesture-v1.0.1.zip](https://github.com/Beverly621/biolume-ar-gesture/releases/download/v1.0.1/biolume-ar-gesture-v1.0.1.zip)
+
+所有历史版本：
+
+[前往 Releases 页面](https://github.com/Beverly621/biolume-ar-gesture/releases)
+
 ## 📦 自动化 Release
 
 本仓库使用 GitHub Actions 自动构建并发布 GitHub Release，不需要手动上传打包文件。
