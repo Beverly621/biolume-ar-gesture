@@ -113,6 +113,18 @@ Then open:
 http://localhost:3001/
 ```
 
+## 📦 Automated Release
+
+This repository uses GitHub Actions to build and publish GitHub Releases automatically. Do not upload release archives manually.
+
+To trigger a release, update `package.json` version if needed, commit and push your changes, then run:
+
+```bash
+npm run release:tag
+```
+
+The command creates and pushes a `v<package-version>` tag, such as `v0.1.0`. Pushing that tag triggers `.github/workflows/release-build.yml`, which builds the project, packages `dist/`, creates `.zip` and `.tar.gz` archives, generates SHA256 checksums, and publishes the GitHub Release.
+
 ## 💻 Usage
 
 Open the page in Safari, Chrome, Edge, or another modern browser, click `Enter AR Garden`, and allow camera permission. After permission is granted, the app enters Camera Gesture Mode with a compact status bar, a bottom gesture dock, and the live botanical effects layer.

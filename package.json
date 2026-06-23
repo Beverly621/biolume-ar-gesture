@@ -12,6 +12,7 @@
     "dev": "npm run sync:assets && vite --host 0.0.0.0",
     "build": "npm run setup && vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "release:tag": "git tag -a v$npm_package_version -m \"Release v$npm_package_version\" && git push origin v$npm_package_version",
     "deploy:ssh": "node scripts/deploy-ssh.mjs"
   },
   "dependencies": {

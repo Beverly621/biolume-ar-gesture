@@ -113,6 +113,18 @@ npm start -- --port 3001
 http://localhost:3001/
 ```
 
+## 📦 自动化 Release
+
+本仓库使用 GitHub Actions 自动构建并发布 GitHub Release，不需要手动上传打包文件。
+
+需要发布时，先按需更新 `package.json` 版本号，提交并推送代码，然后运行：
+
+```bash
+npm run release:tag
+```
+
+该命令会创建并推送 `v<package-version>` 标签，例如 `v0.1.0`。标签推送后会触发 `.github/workflows/release-build.yml`，自动构建项目、打包 `dist/`、生成 `.zip` 与 `.tar.gz` 压缩包、生成 SHA256 校验文件，并发布 GitHub Release。
+
 ## 💻 使用方式
 
 使用 Safari、Chrome、Edge 或其他现代浏览器打开页面，点击 `Enter AR Garden / 进入生态花园`，并允许浏览器访问摄像头。授权后页面会进入实时摄像头手势模式，保留轻量状态栏、底部三手势 Dock 与植物特效层。
